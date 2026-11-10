@@ -1,0 +1,1599 @@
+<title>Twenty-Four Needs</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: an architectural model on a drafting board (3D stage) beside a reading panel; stacks on phones. */
+:root {
+  --bg: #E7EBEF;
+  --surface: #FBFCFD;
+  --surface-2: #EEF2F5;
+  --ink: #17202B;
+  --muted: #536072;
+  --line: #C8D1DB;
+  --scene: #DCE2E8;
+  --grid: #C0CAD4;
+  --body-c: #B8741A;
+  --mind-c: #23759D;
+  --bonds-c: #AE3F68;
+  --life-c: #6650B0;
+  --met: #2C8752;
+  --strain: #C98C0E;
+  --fail: #CC3B27;
+  --supply: #0F8780;
+  --focus: #23759D;
+  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D1218; --surface: #141B23; --surface-2: #1A232D; --ink: #E4EAF1; --muted: #95A2B1; --line: #2A3542;
+    --scene: #0A0F14; --grid: #1D2731;
+    --body-c: #E09E45; --mind-c: #52A8D5; --bonds-c: #E0769E; --life-c: #9C88E7;
+    --met: #4BC089; --strain: #EDBC46; --fail: #F06B56; --supply: #3CC6BE; --focus: #52A8D5;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D1218; --surface: #141B23; --surface-2: #1A232D; --ink: #E4EAF1; --muted: #95A2B1; --line: #2A3542;
+  --scene: #0A0F14; --grid: #1D2731;
+  --body-c: #E09E45; --mind-c: #52A8D5; --bonds-c: #E0769E; --life-c: #9C88E7;
+  --met: #4BC089; --strain: #EDBC46; --fail: #F06B56; --supply: #3CC6BE; --focus: #52A8D5;
+  color-scheme: dark;
+}
+
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--font-body); overflow: hidden; }
+* { box-sizing: border-box; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.app {
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 410px;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 12px;
+  padding-block: 12px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.top { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 8px 24px; min-width: 0; }
+.brand { min-width: 0; }
+.brand h1 { margin: 0; font: 800 clamp(22px, 2.6vw, 30px)/1.05 var(--font-display); letter-spacing: -0.01em; text-wrap: balance; }
+.brand h1 .count { color: var(--mind-c); }
+.brand p { margin: 4px 0 0; color: var(--muted); font-size: 13.5px; max-width: 62ch; }
+.lenses { display: flex; gap: 4px; overflow-x: auto; max-width: 100%; padding: 3px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; scrollbar-width: none; }
+.lenses::-webkit-scrollbar { display: none; }
+.lens { flex: none; border: 0; background: transparent; padding: 7px 12px; border-radius: 7px; cursor: pointer; font-weight: 700; font-size: 13.5px; color: var(--muted); white-space: nowrap; }
+.lens:hover { color: var(--ink); }
+.lens[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+
+.stage { position: relative; min-height: 0; min-width: 0; border-radius: 12px; overflow: hidden; background: var(--scene); border: 1px solid var(--line); }
+.stage canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+.stage canvas:active { cursor: grabbing; }
+.stage.hovering canvas { cursor: pointer; }
+.labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.lab { position: absolute; left: 0; top: 0; white-space: nowrap; will-change: transform; transition: opacity .2s; }
+.flabel { font: 700 11.5px/1 var(--font-body); padding: 4px 7px 4px 5px; border-radius: 6px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 1px 3px rgba(0,0,0,.12); display: flex; gap: 5px; align-items: center; }
+.flabel .c { font: 600 10.5px/1 var(--font-mono); color: var(--c); }
+.flabel.crowded { opacity: .12; }
+.flabel.dim { opacity: .35; }
+.stage.narrow .flabel .n { display: none; }
+.stage.narrow .alabel span, .stage.narrow .elabel { display: none; }
+.stage.narrow .llabel { font-size: 11px; }
+.slabel { font: 600 10px/1 var(--font-mono); padding: 2px 4px; border-radius: 4px; background: var(--surface); color: var(--c); border: 1px solid var(--line); }
+.llabel { pointer-events: auto; cursor: pointer; border: 0; background: transparent; font: 800 13px/1 var(--font-display); letter-spacing: .08em; text-transform: uppercase; color: var(--c); padding: 4px; text-shadow: 0 0 6px var(--scene), 0 0 2px var(--scene); }
+.alabel { font: 600 10.5px/1.2 var(--font-mono); letter-spacing: .06em; color: var(--muted); text-align: center; }
+.alabel b { display: block; color: var(--ink); font-size: 11.5px; }
+.elabel { font: 700 10.5px/1.2 var(--font-body); color: var(--muted); background: var(--scene); padding: 2px 5px; border-radius: 4px; }
+
+.tools { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; padding-top: env(safe-area-inset-top, 0px); }
+.tools button { border: 1px solid var(--line); background: var(--surface); padding: 5px 9px; border-radius: 7px; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.tools button:hover { border-color: var(--muted); }
+.hint { position: absolute; left: 10px; bottom: 10px; font-size: 12px; color: var(--muted); background: var(--surface); border: 1px solid var(--line); padding: 5px 9px; border-radius: 7px; max-width: calc(100% - 20px); }
+.legend { position: absolute; right: 10px; bottom: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; font-size: 12px; display: grid; gap: 4px; max-width: 250px; }
+.legend:empty { display: none; }
+.legend .row { display: flex; align-items: center; gap: 7px; }
+.sw { width: 12px; height: 12px; border-radius: 3px; flex: none; background: var(--c); border: 1px solid rgba(0,0,0,.15); }
+.sw.ghost { background: transparent; border: 1.5px dashed var(--muted); }
+.sw.line { height: 3px; border: 0; border-radius: 2px; }
+.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; max-width: 260px; font-size: 12.5px; box-shadow: 0 4px 14px rgba(0,0,0,.18); z-index: 3; }
+.tip b { display: block; font-size: 13.5px; }
+.tip .c { font: 600 11px var(--font-mono); color: var(--c); }
+.fallback { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 24px; color: var(--muted); }
+
+.panel { min-height: 0; min-width: 0; overflow-y: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overscroll-behavior: contain; }
+.pbody { padding: 18px 20px 24px; display: grid; gap: 14px; }
+.pbody > * { margin: 0; min-width: 0; }
+.eyebrow { font: 600 11px/1.3 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.pbody h2 { font: 800 23px/1.15 var(--font-display); margin: 2px 0 0; text-wrap: balance; }
+.pbody h3 { font: 700 12px/1.3 var(--font-body); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin: 4px 0 -6px; }
+.pbody p { margin: 0; }
+.lede { font-size: 15.5px; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.card { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--surface-2); display: grid; gap: 6px; }
+.btnrow { display: flex; flex-wrap: wrap; gap: 6px; }
+.btn { border: 1px solid var(--line); background: var(--surface); padding: 7px 12px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 13.5px; }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.btn[disabled] { opacity: .4; cursor: default; }
+.chip { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line); background: var(--surface); padding: 4px 9px 4px 6px; border-radius: 999px; cursor: pointer; font-size: 13px; font-weight: 700; }
+.chip .c { font: 600 11px var(--font-mono); color: var(--c); }
+.chip:hover { border-color: var(--c, var(--muted)); }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.chip[aria-pressed="true"] .c { color: inherit; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* the 2D table */
+.mini { display: grid; grid-template-columns: 52px repeat(4, minmax(0, 1fr)); gap: 3px; font-size: 12px; }
+.mini .h { font: 600 10px/1.2 var(--font-mono); color: var(--muted); text-align: center; padding: 2px 0 4px; letter-spacing: .04em; }
+.mini .lv { font: 800 11px/1.15 var(--font-display); color: var(--c); text-transform: uppercase; letter-spacing: .05em; display: flex; align-items: center; }
+.mini .cell { background: var(--surface-2); border-radius: 6px; padding: 3px; display: grid; gap: 2px; align-content: start; border-top: 3px solid var(--c); }
+.mini button { text-align: left; border: 0; background: transparent; border-radius: 4px; padding: 3px 4px; cursor: pointer; line-height: 1.2; font-size: 11.5px; font-weight: 700; overflow-wrap: anywhere; }
+.mini button .c { font: 600 10px var(--font-mono); color: var(--c); margin-right: 2px; }
+.mini button:hover, .mini button[aria-current="true"] { background: var(--surface); box-shadow: inset 0 0 0 1px var(--c); }
+
+.toggles { display: grid; gap: 6px; }
+.toggles label { display: flex; align-items: center; gap: 8px; font-size: 13.5px; cursor: pointer; }
+.toggles input { accent-color: var(--ink); width: 16px; height: 16px; }
+
+/* need detail */
+.needhead { display: flex; gap: 12px; align-items: flex-start; }
+.bigcode { flex: none; font: 600 15px/1 var(--font-mono); color: var(--surface); background: var(--c); border-radius: 8px; min-width: 44px; height: 44px; display: grid; place-items: center; padding: 0 6px; }
+.def { font-size: 16.5px; line-height: 1.45; }
+.facts { display: grid; gap: 10px; margin: 0; }
+.facts > div { border-left: 3px solid var(--c, var(--line)); padding-left: 10px; }
+.facts dt { font: 700 11.5px/1.3 var(--font-body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.facts dd { margin: 2px 0 0; }
+.ttf { display: inline-block; margin-top: 4px; font: 600 11px var(--font-mono); background: var(--surface-2); border: 1px solid var(--line); border-radius: 5px; padding: 2px 6px; }
+.ways { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.ways th { text-align: left; vertical-align: top; padding: 7px 10px 7px 0; width: 84px; font: 700 12px/1.4 var(--font-body); color: var(--muted); }
+.ways td { padding: 7px 0; border-top: 1px solid var(--line); }
+.ways tr:first-child td { border-top: 0; }
+.backbtn { justify-self: start; border: 0; background: transparent; padding: 0; color: var(--muted); font-weight: 700; font-size: 13px; cursor: pointer; }
+.backbtn:hover { color: var(--ink); }
+
+/* tour */
+.dots { display: flex; gap: 5px; }
+.dots span { width: 22px; height: 4px; border-radius: 2px; background: var(--line); }
+.dots span.on { background: var(--ink); }
+
+/* life stages */
+.range { width: 100%; accent-color: var(--ink); }
+.ticks { display: grid; grid-template-columns: repeat(5, 1fr); font-size: 11.5px; color: var(--muted); text-align: center; margin-top: -4px; }
+.ticks span:first-child { text-align: left; } .ticks span:last-child { text-align: right; }
+.ticks span.on { color: var(--ink); font-weight: 700; }
+
+/* deprive */
+.clock { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.clock .t { font: 800 26px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.cutgrid { display: grid; gap: 8px; }
+.cutgrid .lvrow { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.cutgrid .lvname { font: 800 11px var(--font-display); text-transform: uppercase; letter-spacing: .05em; color: var(--c); width: 46px; }
+.chip.cut { background: var(--fail); border-color: var(--fail); color: #fff; }
+.chip.cut .c { color: #fff; }
+.status { display: grid; gap: 6px; font-size: 13.5px; }
+.status .row { display: flex; gap: 8px; align-items: baseline; }
+.pill { flex: none; font: 600 10.5px/1 var(--font-mono); padding: 3px 6px; border-radius: 999px; color: #fff; background: var(--c); text-transform: uppercase; letter-spacing: .04em; }
+.banner { border-radius: 10px; padding: 12px 14px; background: var(--ink); color: var(--surface); font-weight: 700; }
+
+/* scenarios and test bench */
+.list { display: grid; gap: 6px; }
+.item { text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 9px 12px; cursor: pointer; display: grid; gap: 2px; }
+.item:hover { border-color: var(--muted); }
+.item[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.item b { font-size: 14.5px; }
+.item span { font-size: 12.5px; color: var(--muted); }
+.tests { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.test { display: grid; grid-template-columns: 74px 1fr; gap: 10px; padding: 9px 12px; border-top: 1px solid var(--line); font-size: 13.5px; align-items: start; }
+.test:first-child { border-top: 0; }
+.test .k { font: 600 11px/1.3 var(--font-mono); color: var(--muted); }
+.res { display: inline-block; font: 600 10.5px/1 var(--font-mono); text-transform: uppercase; letter-spacing: .05em; padding: 3px 6px; border-radius: 4px; color: #fff; margin-right: 6px; vertical-align: 1px; }
+.res.pass { background: var(--met); } .res.fail { background: var(--fail); } .res.contested { background: var(--strain); } .res.na { background: var(--muted); }
+.verdict { font-weight: 700; font-size: 15px; }
+.foot { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; }
+
+@media (max-width: 860px) {
+  .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(250px, 50%) minmax(0, 1fr); gap: 10px; padding-block: 10px; }
+  .brand p { display: none; }
+  .legend { display: none; }
+  .hint { font-size: 11px; }
+  .pbody { padding: 14px 16px 22px; }
+}
+@media (prefers-reduced-motion: reduce) { .lab { transition: none; } }
+</style>
+
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <h1><span class="count">Twenty-Four</span> Needs</h1>
+      <p>Seven AI agents with opposed worldviews argued their way to one map of human needs. Here it is as a structure you can walk around.</p>
+    </div>
+    <nav class="lenses" role="tablist" aria-label="Views" id="lenses"></nav>
+  </header>
+  <section class="stage" id="stage" aria-label="3D model of the needs">
+    <div class="labels" id="labels"></div>
+    <div class="tools" id="tools">
+      <button data-cam="overview" type="button">Overview</button>
+      <button data-cam="side" type="button">Side</button>
+      <button data-cam="top" type="button">Top</button>
+    </div>
+    <div class="hint" id="hint">Drag to turn · Scroll or pinch to zoom · Right-drag to pan · Click a block</div>
+    <div class="legend" id="legend"></div>
+    <div class="tip" id="tip" hidden></div>
+  </section>
+  <aside class="panel" id="panel" aria-label="Details"><div class="pbody" id="pbody"></div></aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function () {
+"use strict";
+
+/* ------------------------------------------------------------------ */
+/* Content: the panel's consensus, encoded as data                      */
+/* ------------------------------------------------------------------ */
+
+var FUNCS = {
+  in:      { key: "IN",      word: "supply",  x: -4.8, text: "Lack of supply from outside" },
+  guard:   { key: "GUARD",   word: "protect", x: -1.6, text: "Disruption from outside" },
+  restore: { key: "RESTORE", word: "recover", x:  1.6, text: "Wear from its own operation" },
+  out:     { key: "OUT",     word: "use",     x:  4.8, text: "Decay through disuse" }
+};
+var FN_ORDER = ["in", "guard", "restore", "out"];
+
+var LEVELS = {
+  body:  { roman: "I",   name: "Body",  y: 0,   z: 0,    present: "From conception",
+           text: "An organism that must persist. This is the only strict dependency: the dead have no needs." },
+  mind:  { roman: "II",  name: "Mind",  y: 3.3, z: 2.7,  present: "From birth",
+           text: "An agent that steers by a model of its world." },
+  bonds: { roman: "III", name: "Bonds", y: 3.3, z: -2.7, present: "From birth",
+           text: "A social being, formed and sustained by others." },
+  life:  { roman: "IV",  name: "Life",  y: 6.6, z: 0,    present: "Wherever a person can grasp their life as a whole",
+           text: "A life lived as a whole across time, knowing it will end." }
+};
+var LEVEL_ORDER = ["life", "bonds", "mind", "body"];
+
+var FAMILIES = [
+  { id: "1",  name: "Exchange",       level: "body",  fn: "in",      subs: ["1a", "1b", "1c", "1d", "1e"] },
+  { id: "2",  name: "Protection",     level: "body",  fn: "guard",   subs: ["2"] },
+  { id: "3",  name: "Sleep",          level: "body",  fn: "restore", subs: ["3"] },
+  { id: "4",  name: "Movement",       level: "body",  fn: "out",     subs: ["4"] },
+  { id: "5",  name: "Understanding",  level: "mind",  fn: "in",      subs: ["5"] },
+  { id: "6",  name: "Security",       level: "mind",  fn: "guard",   subs: ["6"] },
+  { id: "7",  name: "Respite",        level: "mind",  fn: "restore", subs: ["7"] },
+  { id: "8",  name: "Agency",         level: "mind",  fn: "out",     subs: ["8a", "8b", "8c"] },
+  { id: "9",  name: "Belonging",      level: "bonds", fn: "in",      subs: ["9a", "9b"] },
+  { id: "10", name: "Standing",       level: "bonds", fn: "guard",   subs: ["10"] },
+  { id: "11", name: "Withdrawal",     level: "bonds", fn: "restore", subs: ["11"] },
+  { id: "12", name: "Contribution",   level: "bonds", fn: "out",     subs: ["12"] },
+  { id: "13", name: "Meaning",        level: "life",  fn: "in",      subs: ["13"] },
+  { id: "14", name: "Integrity",      level: "life",  fn: "guard",   subs: ["14a", "14b"] },
+  { id: "15", name: "Reconciliation", level: "life",  fn: "restore", subs: ["15"] },
+  { id: "16", name: "Purpose",        level: "life",  fn: "out",     subs: ["16"] }
+];
+
+var M = 1, H = 60, D = 1440, W = 10080, MO = 43800, Y = 525600;
+
+var NEEDS = [
+  { id: "1a", fam: "1", name: "Air",
+    def: "Air to breathe: oxygen in, carbon dioxide out.",
+    unmet: "Hypoxia: unconsciousness, then death.", ttf: 4 * M, ttfLabel: "minutes", fatalAt: 6 * M,
+    alone: "A diver whose air runs out is fed, watered, warm and loved. None of that helps.",
+    band: "Too much harms too: breathing pure oxygen under pressure poisons the lungs and brain.",
+    ways: ["Open air; a smoke hole in the roof of the hut.", "Open cloisters and courtyards.", "Ventilated rooms, clean-air rules, a carbon-monoxide alarm."] },
+  { id: "1b", fam: "1", name: "Water",
+    def: "Enough fresh water to keep the body's fluid and salt in balance.",
+    unmet: "Dehydration, then kidney and circulatory failure.", ttf: 3 * D, ttfLabel: "days", fatalAt: 5 * D,
+    alone: "A castaway surrounded by seawater, with food and company, still dies of thirst.",
+    band: "Drinking far too much dilutes the blood's salt and can kill.",
+    ways: ["Springs, streams, water carried in gourds or eggshells.", "The well or cistern in the cloister.", "Tap water, bottled water, a water utility."] },
+  { id: "1c", fam: "1", name: "Energy",
+    def: "Enough food energy to fuel the body's work.",
+    unmet: "Wasting: non-essential functions shut down, then death.", ttf: 5 * W, ttfLabel: "weeks", fatalAt: 9 * W,
+    alone: "In a famine, people with water, shelter and family still waste away.",
+    band: "Chronic excess energy drives obesity and metabolic disease.",
+    ways: ["Tubers, nuts, game, honey.", "Bread, rice or alms-food at set hours.", "Supermarkets, canteens, delivery."] },
+  { id: "1d", fam: "1", name: "Essential nutrients",
+    def: "The molecules the body cannot make: essential amino and fatty acids, vitamins and minerals.",
+    unmet: "Deficiency disease: scurvy, rickets, anaemia, failed repair.", ttf: 3 * MO, ttfLabel: "months",
+    alone: "Sailors on long voyages ate plenty of calories and still got scurvy without fresh food.",
+    band: "Some vitamins and minerals are toxic in excess.",
+    ways: ["Dozens of wild plants, organ meats, shellfish.", "A kitchen garden, pulses and grains.", "A varied diet, fortified foods, supplements."] },
+  { id: "1e", fam: "1", name: "Waste removal",
+    def: "Getting rid of the body's chemical waste.",
+    unmet: "Self-poisoning.", ttf: 5 * D, ttfLabel: "days", fatalAt: 2 * W,
+    alone: "When the kidneys fail, a person can be fed, watered and loved and still be poisoned by their own waste.",
+    ways: ["Latrine sites downwind and away from camp.", "Latrines and drains built into the cloister.", "Toilets, sewers, and dialysis when kidneys fail."] },
+  { id: "2", fam: "2", name: "Protection",
+    def: "Body temperature in range; injury, toxins and pathogens kept within what the body can repair.",
+    unmet: "Hypothermia or heatstroke, trauma, infection, poisoning.", ttf: 6 * H, ttfLabel: "hours in harsh weather", fatalAt: 12 * H,
+    alone: "A well-fed, well-rested hiker caught in a blizzard dies of cold.",
+    band: "Overheating under too many layers is as dangerous as cold.",
+    ways: ["Windbreaks, fire, hide cloaks, plant medicines.", "Stone walls, robes, the infirmary.", "Insulated housing, vaccines, seatbelts, healthcare."] },
+  { id: "3", fam: "3", name: "Sleep",
+    def: "Enough sleep, on a regular rhythm.",
+    unmet: "Cognitive, immune and metabolic collapse; harm from a broken rhythm even with enough hours.", ttf: 3 * D, ttfLabel: "days",
+    alone: "Someone kept awake, though fed, safe and loved, starts to hallucinate within days.",
+    ways: ["Sleep after dusk round the fire, naps in the heat of the day.", "Fixed hours set by the bell.", "A dark bedroom and an alarm clock. Night shifts break the rhythm."] },
+  { id: "4", fam: "4", name: "Movement",
+    def: "Physical use of the body, without which tissue wastes.",
+    unmet: "Loss of muscle, bone and heart capacity.", ttf: 3 * W, ttfLabel: "weeks",
+    alone: "A patient kept in bed, fed, safe and rested, loses muscle and bone within weeks.",
+    band: "Overuse injures: stress fractures and exhaustion.",
+    ways: ["Walking 10 km or more a day, digging, carrying.", "Garden labour, walking meditation, processions.", "Cycling, stairs, the gym, a dog to walk."] },
+  { id: "5", fam: "5", name: "Understanding",
+    def: "Enough reliable information to model one's world and situation, neither starved nor flooded.",
+    unmet: "Confusion, misjudged action, hallucination or overload.", ttf: 2 * D, ttfLabel: "days, in total deprivation",
+    alone: "In a sensory-deprivation tank, people who are safe, fed and rested begin to hallucinate.",
+    band: "Flooding harms too: overload and shutdown.",
+    ways: ["Tracking lore; the elders' knowledge of seasons and plants.", "Study, the teacher's instruction, the rule.", "School, maps, news, manuals, search."] },
+  { id: "6", fam: "6", name: "Security",
+    def: "A familiar, dependable home ground of any kind (plot, migration route, street), trusted to go on providing, without persistent threat.",
+    unmet: "Chronic alarm, dissociation, uprootedness.", ttf: 1 * MO, ttfLabel: "weeks to months",
+    alone: "A family that has not been hurt yet, but knows that eviction or war is coming, lives in chronic alarm.",
+    ways: ["The band's known territory and waterholes.", "The enclosure, its walls and its routine.", "A tenancy, a steady job, a neighbourhood one knows."] },
+  { id: "7", fam: "7", name: "Respite",
+    def: "Task demand, vigilance and distress (including pain) come in bounded spells.",
+    unmet: "Burnout despite enough sleep.", ttf: 3 * MO, ttfLabel: "months",
+    alone: "A carer who sleeps eight hours but is never off duty burns out.",
+    band: "Endless respite is not rest: without demand, the OUT needs (8, 12) decay.",
+    ways: ["Rest days after a kill; evenings of stories and song.", "Rest days and feast days in the calendar.", "Weekends, holidays, hobbies, pain relief."] },
+  { id: "8a", fam: "8", name: "Efficacy",
+    def: "One's actions make a difference.",
+    unmet: "Helplessness.", ttf: 2 * MO, ttfLabel: "months",
+    alone: "Learned helplessness: goals and will are intact, but nothing one does changes anything.",
+    ways: ["A hunt that lands, a trap that works.", "A garden that grows, a manuscript finished.", "A project shipped, a repair that holds."] },
+  { id: "8b", fam: "8", name: "Direction",
+    def: "Workable goals at the scale of daily action. Goals at the scale of a life are need 16.",
+    unmet: "Aimlessness.", ttf: 3 * MO, ttfLabel: "months",
+    alone: "Aimless freedom: effective and free, but with no workable goals.",
+    ways: ["Where to camp next; what the season needs.", "The day's offices and tasks.", "A to-do list, a shift, a plan for the week."] },
+  { id: "8c", fam: "8", name: "Self-direction",
+    def: "Not wholly at another's will. Acting on one's own judgement or in a role one accepts both count; for those who cannot act, their evident will counts.",
+    unmet: "Alienation, apathy.", ttf: 3 * MO, ttfLabel: "months",
+    alone: "An effective, well-treated person who lives wholly at another's direction. The Minimalist Skeptic dissents: these cases also fail 8a or 10.",
+    ways: ["Choosing when to hunt and with whom.", "A vow freely taken; obedience one has accepted.", "Choosing one's work, route and hours."] },
+  { id: "9a", fam: "9", name: "Bond",
+    def: "Known, responded to and cared for by particular others one can count on.",
+    unmet: "Infants fail to thrive; adults suffer loneliness and earlier death.", ttf: 2 * MO, ttfLabel: "months",
+    alone: "An infant fed and cleaned on schedule by rotating staff, with no one person who responds to them, fails to thrive.",
+    ways: ["Parents, spouse, siblings, a hunting partner.", "A spiritual director; brothers or sisters in the community.", "Partner, family, close friends."] },
+  { id: "9b", fam: "9", name: "Membership",
+    def: "Counted as one of a “we”.",
+    unmet: "Exile, alienation.", ttf: 3 * MO, ttfLabel: "months",
+    alone: "An exile who keeps a loving partner still suffers the loss of a people.",
+    ways: ["The band and the clan.", "The order.", "A team, a congregation, a club, a nation."] },
+  { id: "10", fam: "10", name: "Standing",
+    def: "Treated as someone whose interests count: equal in worth if not in rank, and not degraded, exploited or intruded upon.",
+    unmet: "Humiliation, shame, rage.", ttf: 3 * MO, ttfLabel: "months",
+    alone: "A child who is fed, held and attached to a parent who degrades them suffers shame and rage that the bond cannot cure.",
+    ways: ["Sharing rules, and teasing that cuts braggarts down to size.", "Equality under the rule, whatever one's office.", "Fair pay, legal rights, respect at work."] },
+  { id: "11", fam: "11", name: "Withdrawal",
+    def: "Periodic release from social exposure and role.",
+    unmet: "Social exhaustion, depersonalisation.", ttf: 1 * MO, ttfLabel: "weeks to months",
+    alone: "Someone who sleeps well but is never out of view or out of role, as on some wards and in some dormitories, becomes exhausted.",
+    ways: ["Walking alone to gather; the night watch.", "The cell; hours of silence.", "A room of one's own, headphones, a walk."] },
+  { id: "12", fam: "12", name: "Contribution",
+    def: "Giving something others receive and value. In infancy, severe disability and dying, this includes the response one returns to carers.",
+    unmet: "Feeling a burden.", ttf: 6 * MO, ttfLabel: "months",
+    alone: "A retiree who is safe, loved and respected, but from whom no one needs anything, comes to feel a burden.",
+    band: "Too much giving with no respite is the carer's burnout (7).",
+    ways: ["Sharing meat; teaching a child to track.", "Prayer for others, hospitality, copying books.", "Work, volunteering, caring for a parent. For a baby, a smile."] },
+  { id: "13", fam: "13", name: "Meaning",
+    def: "One's life (its origin, suffering and end) makes sense within a frame larger than that life. No particular belief is required.",
+    unmet: "Nihilism, despair.", ttf: 1 * Y, ttfLabel: "a year or more",
+    alone: "People who are informed, effective and loved can still despair, asking what it is all for. In reverse, prisoners and the dying who lose efficacy and company can stay intact because their life still makes sense.",
+    ways: ["Creation stories; ancestors in the land.", "Doctrine and contemplation.", "A faith, a philosophy, science, a family story."] },
+  { id: "14a", fam: "14", name: "Moral integrity",
+    def: "Living by one's own values.",
+    unmet: "Moral injury.", ttf: 6 * MO, ttfLabel: "months",
+    alone: "A soldier who is safe, informed, effective, loved and respected breaks down after acting against his values.",
+    ways: ["Living by the band's ethic of sharing.", "Keeping the vow.", "Keeping one's word; refusing to cut corners."] },
+  { id: "14b", fam: "14", name: "Continuity",
+    def: "One's past held together as one life.",
+    unmet: "Fragmentation, identity confusion.", ttf: 6 * MO, ttfLabel: "months",
+    alone: "After amnesia or a traumatic rupture, values can stay intact while the story of one's life falls apart.",
+    ways: ["One's life told and retold round the fire.", "The chronicle of a vocation.", "Photos, diaries, old friends, a home town."] },
+  { id: "15", fam: "15", name: "Reconciliation",
+    def: "Coming to terms with loss, failure, wrongs done and suffered, and mortality.",
+    unmet: "Unresolved grief, chronic guilt, terror of death.", ttf: 1 * Y, ttfLabel: "a year or more",
+    alone: "Grief and guilt can persist after new bonds form and life is otherwise good.",
+    ways: ["Mourning rites; rituals that settle quarrels.", "Confession, penance, preparing for death.", "Funerals, apologies, therapy, a will."] },
+  { id: "16", fam: "16", name: "Purpose",
+    def: "An open future: ends worth pursuing, believed reachable, that reach beyond the present. The commonest such end is passing something on.",
+    unmet: "Hopelessness.", ttf: 1 * Y, ttfLabel: "a year or more",
+    alone: "A frame that fully makes sense of one's life, but shows no way forward, produces resignation.",
+    ways: ["Raising children; teaching the young the land.", "The path of the vocation; books copied for those who come after.", "A career, a garden planted, grandchildren, a book."] }
+];
+var WAYS = ["Forager", "Monk", "Commuter"];
+
+/* dependency edges between families */
+var EDGES = [
+  { from: "2",  to: "6",  type: "column", note: "Each guards the boundary of the next system up." },
+  { from: "6",  to: "10", type: "column", note: "Each guards the boundary of the next system up." },
+  { from: "10", to: "14", type: "column", note: "Each guards the boundary of the next system up." },
+  { from: "4",  to: "8",  type: "column", note: "Each outflow is built from the one below." },
+  { from: "8",  to: "12", type: "column", note: "Each outflow is built from the one below." },
+  { from: "12", to: "16", type: "column", note: "Each outflow is built from the one below." },
+  { from: "3",  to: "7",  type: "column", note: "Sleep feeds Respite." },
+  { from: "9",  to: "5",  type: "twin", when: "dev",   note: "In development, infants learn the world through others." },
+  { from: "9",  to: "6",  type: "twin", when: "dev",   note: "In development, infants learn what is safe through others." },
+  { from: "5",  to: "9",  type: "twin", when: "adult", note: "In adult life, one needs a working mind to keep bonds." },
+  { from: "9",  to: "1",  type: "supply", note: "In dependence, others deliver everything. Groups deliver food." },
+  { from: "9",  to: "2",  type: "supply", note: "Groups deliver protection." },
+  { from: "13", to: "7",  type: "supply", note: "Meaning lets people endure pain and dying." },
+  { from: "16", to: "1",  type: "supply", note: "Purpose lets people endure hunger: the fasting monk, the besieged town." }
+];
+Object.keys(LEVELS).forEach(function (lv) {
+  var fam = function (fn) { return FAMILIES.filter(function (f) { return f.level === lv && f.fn === fn; })[0].id; };
+  EDGES.push({ from: fam("in"), to: fam("out"), type: "row", sub: "enable", note: "IN makes OUT possible." });
+  EDGES.push({ from: fam("guard"), to: fam("out"), type: "row", sub: "enable", note: "GUARD makes OUT possible." });
+  EDGES.push({ from: fam("out"), to: fam("restore"), type: "row", sub: "demand", note: "OUT creates the demand for RESTORE. Rhythm is this cycle." });
+});
+
+var LEVEL_EDGES = [
+  { from: "body", to: "mind",  label: "Body feeds everything" },
+  { from: "body", to: "bonds", label: "" },
+  { from: "mind", to: "bonds", twin: true, label: "Twins: each builds the other" },
+  { from: "mind", to: "life",  label: "Mind and Bonds feed Life" },
+  { from: "bonds", to: "life", label: "" }
+];
+
+var TOUR = [
+  { title: "A person, drawn as a building",
+    text: "Each block is one need: a condition a person must be in, whatever they want or believe. There are 24 needs in 16 families. Drag the model to turn it at any time.",
+    cam: "overview", focus: null, layers: { level: true } },
+  { title: "The ground floor: Body",
+    text: "Air, water, energy, nutrients, waste removal, protection, sleep and movement. This is the one strict dependency: the dead have no needs. Block height shows urgency. Air harms in minutes, water in days, food in weeks. Urgency is not rank.",
+    cam: "body", focus: { levels: ["body"] }, layers: { level: true } },
+  { title: "Four ways to fail, on every floor",
+    text: "Read along any floor from left to right. IN is a lack of supply from outside. GUARD is disruption from outside. RESTORE is wear from the system's own operation. OUT is decay through disuse. The same four columns repeat at every level, which is how the list was generated.",
+    cam: "front", focus: null, layers: {}, showAxes: true },
+  { title: "Mind and Bonds are twins",
+    text: "They stand on the same storey, side by side, and neither is built on the other. Infants learn the world, and what is safe, through other people. Adults need working minds to keep their bonds. From the side the structure is a diamond.",
+    cam: "side", focus: { levels: ["mind", "bonds"] }, layers: { level: true, twin: true } },
+  { title: "The top floor: Life",
+    text: "A life lived as a whole across time, knowing it will end: Meaning, Integrity, Reconciliation and Purpose. This floor applies wherever a person can grasp their life as a whole. The Minimalist Skeptic fought it hardest and finally accepted it.",
+    cam: "life", focus: { levels: ["life"] }, layers: { level: true } },
+  { title: "Columns carry upward",
+    text: "Protection → Security → Standing → Integrity: each guards the boundary of the next system up. Movement → Agency → Contribution → Purpose: each outflow is built from the one below. Sleep feeds Respite.",
+    cam: "overview", focus: { fams: ["2", "6", "10", "14", "4", "8", "12", "16", "3", "7"] }, layers: { column: true } },
+  { title: "Supply runs downward",
+    text: "In infancy, illness and old age, other people deliver everything: being cared for is need 9a and the channel for all the rest. Groups deliver food and protection. Meaning and Purpose let people endure hunger, pain and dying.",
+    cam: "overview", focus: { fams: ["9", "1", "2", "13", "16", "7"] }, layers: { supply: true } },
+  { title: "Thresholds, not a ladder",
+    text: "A lower need only has to be partly met before a higher one can be pursued, and higher needs are not luxuries to postpone. Now open any block, or try the other views: Life stages, Deprive, Scenarios and Is it a need?",
+    cam: "overview", focus: null, layers: { level: true, column: true, twin: true } }
+];
+
+var STAGES = [
+  { name: "Newborn",
+    text: "Body, Mind and Bonds are present from birth. Life is not yet present: a newborn cannot grasp its life as a whole, so those needs do not apply yet. Others deliver everything, and being cared for (9a) is the channel for the rest. Contribution is the response the baby returns: a gaze, a smile. Self-direction means its evident will counts: crying, turning away.",
+    def: { body: "others", mind: "others", bonds: "others", life: "absent" }, over: { "12": "self", "4": "shared" },
+    edges: { supply: true, level: true }, dev: true },
+  { name: "Child",
+    text: "The child learns the world and what is safe through other people, so Bond feeds Understanding and Security. Play is the chief satisfier of 5, 8 and 9 at this age. The Life floor starts to fill in, mostly through stories given by others.",
+    def: { body: "shared", mind: "shared", bonds: "shared", life: "shared" }, over: { "1c": "others", "2": "others", "6": "others", "9a": "others" },
+    edges: { twin: true, level: true }, dev: true },
+  { name: "Adult",
+    text: "Most needs are now self-supplied, but the Bonds floor always needs other people, and groups still deliver food and protection. The developmental arrows reverse: a working mind keeps bonds going.",
+    def: { body: "self", mind: "self", bonds: "shared", life: "self" }, over: { "1c": "shared", "2": "shared", "12": "self" },
+    edges: { twin: true, column: true, level: true }, dev: false },
+  { name: "Old age",
+    text: "Supply begins to shift back to others. Movement and protection become shared work. Contribution often moves toward passing something on (16), and Reconciliation (15) carries more weight.",
+    def: { body: "shared", mind: "self", bonds: "shared", life: "self" }, over: { "1a": "self", "6": "shared", "12": "shared" },
+    edges: { supply: true, column: true, level: true }, dev: false },
+  { name: "Dying",
+    text: "Body needs pass back to carers. Respite now includes pain relief, and truthful information about one's situation is part of Understanding. Meaning, Reconciliation and Purpose move to the centre, and Meaning and Purpose help people endure pain. Contribution is the response returned to carers.",
+    def: { body: "others", mind: "shared", bonds: "others", life: "self" }, over: { "7": "others", "8c": "others", "12": "self", "6": "others" },
+    edges: { supply: true, level: true }, dev: false }
+];
+
+var PRESETS = [
+  { id: "raft", name: "Adrift on a raft, alone", cut: ["1b", "1c", "2", "6", "9a", "9b"], t: 4 * D,
+    note: "Water fails in days. By about five days the body ends, and with it every other need." },
+  { id: "solitary", name: "Solitary confinement", cut: ["9a", "9b", "5", "8a", "8c", "12", "4"], t: 6 * MO,
+    note: "The body survives. Mind and Bonds needs fail over weeks and months, and the strain climbs the columns." },
+  { id: "carehome", name: "A care home with no visitors", cut: ["9a", "12", "8c", "4", "16"], t: 1 * Y,
+    note: "Fed, warm and safe, yet failing on the Bonds and Life floors." },
+  { id: "carer", name: "A carer who is never off duty", cut: ["7", "11"], t: 6 * MO,
+    note: "Sleep is met. Respite and Withdrawal fail, and Agency comes under strain." }
+];
+
+var SCENARIOS = [
+  { id: "unheld-infant", title: "The fed but unheld infant", tag: "9a fails on its own", test: "T4 Irreducible",
+    who: "A newborn in an understaffed institution",
+    story: "Fed on schedule, kept warm and clean by staff who rotate every shift. Nobody responds to this particular child, or knows them.",
+    states: { "9a": "fail", "5": "strain", "6": "strain", "13": "absent", "14a": "absent", "14b": "absent", "15": "absent", "16": "absent" }, focus: "9",
+    lesson: "Every flow the body needs arrives, yet the child fails to thrive. Being cared for is part of need 9a, not only the channel that delivers food. This was the Relationalist's non-negotiable point." },
+  { id: "relocated-village", title: "The relocated village", tag: "Place is a satisfier of 6", test: "T3 Many satisfiers",
+    who: "A whole village moved for a dam, with kin and standing intact",
+    story: "The new houses are better built. Neighbours, food and standing all come along. For a generation, people still grieve the old land.",
+    states: { "6": "fail", "15": "strain", "14b": "strain" }, focus: "6",
+    lesson: "Place is not a separate need. Losing it fails Security (6), because the familiar home ground is gone, and the grief is worked through by Reconciliation (15). The Outsider accepted this instead of adding a 17th family." },
+  { id: "moral-injury", title: "The soldier with moral injury", tag: "14a fails on its own", test: "T4 Irreducible",
+    who: "A soldier back home after a war",
+    story: "Safe, well informed, effective at work, loved by family and respected by the town. During the war he obeyed an order that broke his own values.",
+    states: { "14a": "fail", "15": "strain" }, focus: "14",
+    lesson: "Everything on the Body, Mind and Bonds floors is met, and he still breaks down. This case kept Integrity on the list." },
+  { id: "prisoner", title: "The prisoner who stays intact", tag: "Meaning holds when its parts fail", test: "T4 in reverse",
+    who: "A long-term political prisoner",
+    story: "Little movement, no say over the day, cut off from family and people. Their life still makes sense to them, and they hold an open future.",
+    states: { "4": "strain", "8a": "fail", "8c": "fail", "9a": "fail", "9b": "fail", "12": "strain", "6": "strain", "10": "fail" }, focus: "13",
+    lesson: "If Meaning were only a mix of Information, Efficacy and Connection, it would collapse when they fail. It does not. This case persuaded the Minimalist Skeptic to accept the Life floor." },
+  { id: "carer", title: "The burned-out carer", tag: "Respite is not Sleep", test: "T4 and Band",
+    who: "An adult caring for a parent with dementia",
+    story: "Sleeps eight hours a night, eats well, is loved and needed. But they are never off duty: always listening for a fall.",
+    states: { "7": "fail", "11": "fail", "12": "strain", "8b": "strain" }, focus: "7",
+    lesson: "Sleep is met, yet the carer burns out, so Respite (7) fails on its own. Contribution is over its band: too much giving harms too." },
+  { id: "exile", title: "Exile with a loving partner", tag: "9b fails on its own", test: "T4 Irreducible",
+    who: "A dissident exiled abroad with their spouse",
+    story: "The partner is there every day. The country, the language and the people they belonged to are gone.",
+    states: { "9b": "fail", "6": "strain", "10": "strain" }, focus: "9",
+    lesson: "Bond (9a) is met while Membership (9b) fails. That is why Belonging has two sub-needs." },
+  { id: "night-shift", title: "The night-shift nurse", tag: "Rhythm is part of Sleep", test: "Detection",
+    who: "A nurse on rotating nights",
+    story: "Gets seven hours of sleep, but at a different time each week.",
+    states: { "3": "strain", "7": "strain" }, focus: "3",
+    lesson: "Sleep is defined as enough, on a regular rhythm. The hours are met but the rhythm is not, and harm follows. The Engineer insisted this failure keep its own detection test." },
+  { id: "over-managed", title: "The kindly over-managed adult", tag: "8c, with a recorded dissent", test: "T4, contested",
+    who: "An adult with a disability in a well-run home",
+    story: "The carers are kind and count all of their interests. They decide every meal, outing and bedtime without asking.",
+    states: { "8c": "fail", "8a": "strain" }, focus: "8",
+    lesson: "Standing (10) is met because their interests count. Their will does not. Six agents hold that 8c fails here on its own. The Minimalist Skeptic dissents: overridden choices also fail Efficacy (8a)." },
+  { id: "uptake", title: "Loved, but it does not get through", tag: "The uptake rule", test: "Uptake",
+    who: "A person in a deep depression",
+    story: "Their partner and friends are present and caring. The care is real, but it does not reach them.",
+    states: { "9a": "fail", "16": "strain", "8a": "strain" }, focus: "9",
+    lesson: "A need is met only when its condition actually takes effect. Here the obstacle is the person's capacity to receive, so the remedy goes there, not into more of the same love." }
+];
+
+var TESTS = ["Condition", "T1 Universal", "T2 Harm", "T3 Many satisfiers", "T4 Irreducible"];
+var CANDIDATES = [
+  { name: "Meaning", verdict: "A need: 13 on the list.", maps: ["13"], rows: [
+    ["pass", "A condition of a person: one's life makes sense."],
+    ["pass", "Every known people has stories that make sense of life, suffering and death."],
+    ["pass", "Without it, nihilism and despair, even among the secure and loved."],
+    ["pass", "Myth, doctrine, philosophy, science, a family story."],
+    ["pass", "Prisoners and the dying keep it while efficacy and company fail; the capable and loved can lose it."]] },
+  { name: "Self-direction", verdict: "A need (8c), with one recorded dissent.", maps: ["8"], rows: [
+    ["pass", "Not being wholly at another's will."],
+    ["pass", "Worded so that accepted roles and vows count as met."],
+    ["pass", "Alienation and apathy."],
+    ["pass", "One's own judgement, a role one accepts, one's evident will honoured."],
+    ["contested", "Six agents say it can fail alone. The Skeptic says its cases also fail 8a or 10."]] },
+  { name: "Sex and reproduction", verdict: "Not a need of the individual. Reproduction is the lineage's need; the individual side lives in 9a and 16. All seven agents reached this on their own.", maps: ["9", "16"], rows: [
+    ["pass", "Could be framed as a condition."],
+    ["fail", "Lifelong celibates exist in every era and way of life."],
+    ["fail", "No harm follows from celibacy itself."],
+    ["pass", "Many forms."],
+    ["fail", "Its pull is met through Bond and Purpose."]] },
+  { name: "Money", verdict: "A satisfier, mostly of 1, 2 and 6.", maps: ["1", "2", "6"], rows: [
+    ["fail", "An object, not a condition of a person."],
+    ["fail", "Foragers live whole lives without it."],
+    ["na", "Lacking it harms only through what it buys."],
+    ["fail", "It is one means, specific to some economies."],
+    ["fail", "With food, shelter and security met, no harm remains."]] },
+  { name: "Status", verdict: "Not a need. It is relative, so it cannot be universal. Not being degraded is need 10.", maps: ["10"], rows: [
+    ["pass", "Rank in a group."],
+    ["fail", "Half of any group is below its median."],
+    ["fail", "Low rank without degradation shows no harm: monastic orders, age grades."],
+    ["pass", "Many forms."],
+    ["fail", "Its harm runs through Standing (10)."]] },
+  { name: "Happiness", verdict: "An outcome: the signal that needs are being met.", maps: [], rows: [
+    ["fail", "A feeling and a result, not a condition."],
+    ["na", "Not tested: wrong logical type."],
+    ["na", ""], ["na", ""], ["na", ""]] },
+  { name: "Care", verdict: "Not a separate item. Being cared for is part of 9a, and during dependence it is also the channel for every other need.", maps: ["9", "1", "2"], rows: [
+    ["pass", "Being cared for is a condition."],
+    ["pass", "From the newborn to the dying."],
+    ["pass", "The fed but unheld infant fails to thrive."],
+    ["pass", "Parents, nurses, kin, friends."],
+    ["fail", "It cannot fail apart from Bond (9a): same detection test, same need."]] },
+  { name: "Recognition", verdict: "Splits into two needs: being known (9a) and being counted (10).", maps: ["9", "10"], rows: [
+    ["pass", "A condition."],
+    ["pass", "Universal."],
+    ["pass", "Harm when absent."],
+    ["pass", "Many forms."],
+    ["fail", "Its two parts fail separately: an abused child is known but not counted."]] },
+  { name: "Place", verdict: "A satisfier of Security (6). Its loss is grieved through Reconciliation (15).", maps: ["6", "15"], rows: [
+    ["pass", "A home ground."],
+    ["contested", "Nomads have migration routes, not plots: the need is a home ground of any kind."],
+    ["pass", "A relocated village grieves for a generation."],
+    ["pass", "A plot, a route, a cell, a street."],
+    ["fail", "Its harm runs through 6 and 15."]] },
+  { name: "The living world", verdict: "Excluded provisionally. The Outsider's reservation: whether its absence harms on its own is an open question.", maps: ["7", "13"], rows: [
+    ["pass", "Contact with non-human life, sky and seasons."],
+    ["pass", "Every way of life but one had it."],
+    ["contested", "Sealed settings seem to harm, but not yet apart from 7 and 13."],
+    ["pass", "Forest, field, garden, sea."],
+    ["contested", "No case yet shows it failing while 7 and 13 are met."]] },
+  { name: "Freedom", verdict: "A right or institution. The underlying need is Self-direction (8c).", maps: ["8"], rows: [
+    ["fail", "A social arrangement, not a condition of a person."],
+    ["na", "Tested as 8c instead."], ["na", ""], ["na", ""], ["na", ""]] },
+  { name: "Religion", verdict: "A satisfier, of 13, 15 and 9b.", maps: ["13", "15", "9"], rows: [
+    ["fail", "A practice and institution."],
+    ["fail", "Many people live without one."],
+    ["fail", "Secular lives are unharmed when Meaning is met another way."],
+    ["pass", "Many forms."],
+    ["fail", "Its benefits run through 13, 15 and 9b."]] },
+  { name: "Play", verdict: "A satisfier: the chief one for the young, of 5, 8 and 9.", maps: ["5", "8", "9"], rows: [
+    ["fail", "An activity, not a condition."],
+    ["pass", "Every child plays."],
+    ["contested", "Play-deprived children are harmed, but through 5, 8 and 9."],
+    ["pass", "Many forms."],
+    ["fail", "Its harm runs through Understanding, Agency and Belonging."]] },
+  { name: "Passing something on", verdict: "The panel's compromise: the commonest end of Purpose (16), and also listed as a satisfier.", maps: ["16"], rows: [
+    ["pass", "An end one pursues."],
+    ["pass", "Found in every way of life (the Outsider)."],
+    ["contested", "Anguish that nothing will continue depends on believing continuation matters (the Skeptic)."],
+    ["pass", "Children, teaching, land, work, a book."],
+    ["contested", "Hopelessness is the harm that survives every creed, so the need is an open future."]] }
+];
+
+/* ------------------------------------------------------------------ */
+/* Indexes                                                             */
+/* ------------------------------------------------------------------ */
+var NEED = {}, FAM = {}, NEED_IDS = [];
+NEEDS.forEach(function (n) { NEED[n.id] = n; NEED_IDS.push(n.id); });
+FAMILIES.forEach(function (f) { FAM[f.id] = f; f.subs.forEach(function (s) { NEED[s].level = f.level; NEED[s].fn = f.fn; }); });
+function famOf(id) { return FAM[NEED[id].fam]; }
+function lvVar(lv) { return "var(--" + lv + "-c)"; }
+
+/* ------------------------------------------------------------------ */
+/* State                                                               */
+/* ------------------------------------------------------------------ */
+var LENSES = [
+  { id: "explore", name: "Explore" },
+  { id: "tour", name: "Tour" },
+  { id: "life-stages", name: "Life stages" },
+  { id: "deprive", name: "Deprive" },
+  { id: "scenarios", name: "Scenarios" },
+  { id: "is-it-a-need", name: "Is it a need?" }
+];
+var S = {
+  lens: "explore", selected: null, levelInfo: null, hover: null,
+  layers: { level: true, column: true, twin: true, row: false, supply: false },
+  tour: 0, stage: 0, cut: new Set(), time: 3 * D, playing: false,
+  scenario: null, candidate: null
+};
+var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ------------------------------------------------------------------ */
+/* Helpers                                                             */
+/* ------------------------------------------------------------------ */
+function $(s, el) { return (el || document).querySelector(s); }
+function tok(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function fmtTime(m) {
+  if (m < 60) { var mm = Math.max(1, Math.round(m)); return mm + (mm === 1 ? " minute" : " minutes"); }
+  var h = m / 60; if (h < 24) { var hh = Math.round(h); return hh + (hh === 1 ? " hour" : " hours"); }
+  var d = h / 24; if (d < 14) { var dd = Math.round(d); return dd + (dd === 1 ? " day" : " days"); }
+  if (d < 60) return Math.round(d / 7) + " weeks";
+  var mo = d / 30.4; if (mo < 24) return Math.round(mo) + " months";
+  return (d / 365).toFixed(1).replace(".0", "") + " years";
+}
+var TMAX = 3 * Y, TLOG = Math.log10(TMAX);
+function sliderToTime(v) { return Math.pow(10, (v / 1000) * TLOG); }
+function timeToSlider(t) { return Math.round(Math.log10(Math.max(1, t)) / TLOG * 1000); }
+
+function supplierFor(stageIdx, id) {
+  var st = STAGES[stageIdx];
+  if (st.over[id]) return st.over[id];
+  return st.def[NEED[id].level];
+}
+
+function simulate(t) {
+  var st = {}, death = null;
+  NEED_IDS.forEach(function (id) { st[id] = "met"; });
+  S.cut.forEach(function (id) {
+    var n = NEED[id];
+    if (t >= n.ttf) st[id] = "fail";
+    if (n.fatalAt && t >= n.fatalAt && (!death || n.fatalAt < death.t)) death = { id: id, t: n.fatalAt };
+  });
+  if (death) { NEED_IDS.forEach(function (id) { st[id] = "gone"; }); return { st: st, death: death }; }
+  var failingFams = new Set(), bodyFail = false;
+  NEED_IDS.forEach(function (id) { if (st[id] === "fail") { failingFams.add(NEED[id].fam); if (NEED[id].level === "body") bodyFail = true; } });
+  EDGES.forEach(function (e) {
+    var enabling = e.type === "column" || e.type === "twin" || (e.type === "row" && e.sub === "enable");
+    if (enabling && failingFams.has(e.from)) FAM[e.to].subs.forEach(function (id) { if (st[id] === "met") st[id] = "strain"; });
+  });
+  if (bodyFail) NEED_IDS.forEach(function (id) { if (NEED[id].level !== "body" && st[id] === "met") st[id] = "strain"; });
+  S.cut.forEach(function (id) { if (st[id] === "met") st[id] = "pending"; });
+  return { st: st, death: null };
+}
+
+function relatedFams(famId) {
+  var set = new Set([famId]);
+  EDGES.forEach(function (e) { if (e.from === famId) set.add(e.to); if (e.to === famId) set.add(e.from); });
+  return set;
+}
+
+/* ------------------------------------------------------------------ */
+/* 3D                                                                  */
+/* ------------------------------------------------------------------ */
+var has3D = false, renderer, scene, camera, controls, raycaster, pointer, C = {};
+var stageEl = $("#stage"), labelsEl = $("#labels"), tipEl = $("#tip");
+var blocks = {};        // need id -> { mesh, lines, h, w, pos }
+var famInfo = {};       // fam id -> { x, y, z, top }
+var plates = {};        // level -> { mesh, lines }
+var edgeObjs = [];      // need-family edges
+var levelEdgeObjs = [];
+var pickables = [];
+var labelEls = [];      // { el, pos: Vector3, kind, fam, need }
+var selBox, ground, grid, hemi, dirLight;
+var fly = null;
+
+function readColors() {
+  ["scene", "grid", "ink", "muted", "line", "surface", "surface-2", "bg", "met", "strain", "fail", "supply"].forEach(function (k) { C[k] = tok("--" + k); });
+  ["body", "mind", "bonds", "life"].forEach(function (k) { C[k] = tok("--" + k + "-c"); });
+}
+
+function hOf(ttf) { var u = 1 - Math.log10(Math.max(ttf, 1)) / Math.log10(2.6e6); return 0.45 + 1.75 * u; }
+
+function init3D() {
+  if (!window.THREE || !THREE.OrbitControls) throw new Error("three missing");
+  readColors();
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  stageEl.insertBefore(renderer.domElement, labelsEl);
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(38, 1, 0.1, 300);
+  controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true; controls.dampingFactor = 0.08;
+  controls.minDistance = 4; controls.maxDistance = 48;
+  controls.maxPolarAngle = Math.PI * 0.49;
+  controls.target.set(0, 3.1, 0);
+  camera.position.set(26, 18, 30);
+
+  hemi = new THREE.HemisphereLight(0xffffff, 0x8899aa, 0.62); scene.add(hemi);
+  var amb = new THREE.AmbientLight(0xffffff, 0.22); scene.add(amb);
+  dirLight = new THREE.DirectionalLight(0xffffff, 0.62);
+  dirLight.position.set(9, 20, 12); dirLight.castShadow = true;
+  dirLight.shadow.mapSize.set(2048, 2048);
+  var sc = dirLight.shadow.camera; sc.left = -16; sc.right = 16; sc.top = 16; sc.bottom = -16; sc.near = 1; sc.far = 60;
+  dirLight.shadow.bias = -0.0008;
+  scene.add(dirLight);
+
+  ground = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), new THREE.ShadowMaterial({ opacity: 0.14 }));
+  ground.rotation.x = -Math.PI / 2; ground.position.y = -0.09; ground.receiveShadow = true; scene.add(ground);
+  grid = new THREE.GridHelper(48, 48, 0x888888, 0x888888);
+  grid.position.y = -0.085; grid.material.transparent = true; grid.material.opacity = 0.55; scene.add(grid);
+
+  buildPlates();
+  buildBlocks();
+  buildEdges();
+  buildLevelEdges();
+  buildLabels();
+
+  selBox = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1, 1, 1)), new THREE.LineBasicMaterial({ color: 0x000000 }));
+  selBox.visible = false; scene.add(selBox);
+
+  raycaster = new THREE.Raycaster(); pointer = new THREE.Vector2();
+  bindPointer();
+  new ResizeObserver(resize).observe(stageEl);
+  resize();
+  has3D = true;
+  applyTheme();
+  if (!reduceMotion) flyTo(CAMS.overview(), 1600); else setCam(CAMS.overview());
+  requestAnimationFrame(loop);
+}
+
+function buildPlates() {
+  Object.keys(LEVELS).forEach(function (lv) {
+    var L = LEVELS[lv];
+    var geo = new THREE.BoxGeometry(12.8, 0.14, 3.1);
+    var mat = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.28, roughness: 0.95 });
+    var m = new THREE.Mesh(geo, mat); m.position.set(0, L.y - 0.07, L.z); m.receiveShadow = true; scene.add(m);
+    var lines = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.6 }));
+    lines.position.copy(m.position); scene.add(lines);
+    plates[lv] = { mesh: m, lines: lines };
+  });
+}
+
+function buildBlocks() {
+  FAMILIES.forEach(function (f) {
+    var L = LEVELS[f.level], x = FUNCS[f.fn].x, n = f.subs.length;
+    var plinthGeo = new THREE.BoxGeometry(2.7, 0.1, 2.3);
+    var plinth = new THREE.Mesh(plinthGeo, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 }));
+    plinth.position.set(x, L.y + 0.05, L.z); plinth.receiveShadow = true; plinth.castShadow = true;
+    plinth.userData = { fam: f.id }; scene.add(plinth); pickables.push(plinth);
+    var gap = n === 5 ? 0.09 : 0.16;
+    var w = n === 1 ? 1.5 : (2.4 - gap * (n - 1)) / n;
+    var d = 1.5, maxH = 0;
+    f.subs.forEach(function (id, i) {
+      var h = hOf(NEED[id].ttf); maxH = Math.max(maxH, h);
+      var bx = x - 1.2 + w / 2 + i * (w + gap);
+      if (n === 1) bx = x;
+      var geo = new THREE.BoxGeometry(w, h, d);
+      var mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.55, metalness: 0.02, transparent: true, opacity: 1 });
+      var mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(bx, L.y + 0.1 + h / 2, L.z); mesh.castShadow = true; mesh.receiveShadow = true;
+      mesh.userData = { need: id }; scene.add(mesh); pickables.push(mesh);
+      var lines = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.25 }));
+      lines.position.copy(mesh.position); scene.add(lines);
+      blocks[id] = { mesh: mesh, lines: lines, h: h, w: w, d: d, plinth: plinth };
+    });
+    famInfo[f.id] = { x: x, y: L.y, z: L.z, top: L.y + 0.1 + maxH };
+  });
+}
+
+function curveFor(a, b, kind) {
+  var V = THREE.Vector3, c1, c2;
+  if (Math.abs(a.y - b.y) < 0.3) {
+    var lift = 1.0 + a.distanceTo(b) * 0.16;
+    c1 = a.clone().add(new V(0, lift, 0)); c2 = b.clone().add(new V(0, lift, 0));
+  } else {
+    var dy = b.y - a.y;
+    c1 = a.clone().add(new V(0, dy * 0.55, 0)); c2 = b.clone().add(new V(0, -dy * 0.55, 0));
+  }
+  return new THREE.CubicBezierCurve3(a, c1, c2, b);
+}
+
+function makeTube(curve, radius, twoHeads) {
+  var group = new THREE.Group();
+  var mat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8, depthWrite: false });
+  var tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 56, radius, 6, false), mat);
+  group.add(tube);
+  var heads = [];
+  function head(t, dir) {
+    var cone = new THREE.Mesh(new THREE.ConeGeometry(radius * 3.2, radius * 9, 10), mat);
+    var p = curve.getPointAt(t), tan = curve.getTangentAt(t).multiplyScalar(dir);
+    cone.position.copy(p).add(tan.clone().multiplyScalar(-radius * 3));
+    cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tan.normalize());
+    group.add(cone); heads.push(cone);
+  }
+  head(1, 1); if (twoHeads) head(0, -1);
+  var dots = [];
+  for (var i = 0; i < 3; i++) {
+    var dm = new THREE.Mesh(new THREE.SphereGeometry(radius * 2.1, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.95, depthWrite: false }));
+    group.add(dm); dots.push({ mesh: dm, off: i / 3 });
+  }
+  scene.add(group);
+  return { group: group, mat: mat, dots: dots, curve: curve, twoHeads: !!twoHeads };
+}
+
+function buildEdges() {
+  EDGES.forEach(function (e, idx) {
+    var A = famInfo[e.from], B = famInfo[e.to], a, b, V = THREE.Vector3;
+    var sameLevel = Math.abs(A.y - B.y) < 0.3;
+    var off = 0;
+    if (e.type === "twin") off = e.when === "adult" ? 0.35 : -0.25;
+    if (e.type === "row") { a = new V(A.x, A.top + 0.05, A.z + (e.sub === "demand" ? 0 : (FAM[e.from].fn === "in" ? 0.45 : -0.45))); b = new V(B.x, B.top + 0.05, B.z + (e.sub === "demand" ? 0 : (FAM[e.from].fn === "in" ? 0.45 : -0.45))); }
+    else if (sameLevel) { a = new V(A.x + off, A.top + 0.05, A.z); b = new V(B.x + off, B.top + 0.05, B.z); }
+    else if (A.y < B.y) { a = new V(A.x + off, A.top + 0.05, A.z); b = new V(B.x + off, B.y - 0.2, B.z); }
+    else { a = new V(A.x + 0.55, A.y - 0.2, A.z); b = new V(B.x + 0.55, B.top + 0.06, B.z); }
+    var curve = curveFor(a, b);
+    var obj = makeTube(curve, e.type === "row" ? 0.03 : 0.04, false);
+    obj.edge = e; obj.speed = 0.16 + (idx % 3) * 0.02;
+    edgeObjs.push(obj);
+  });
+}
+
+function buildLevelEdges() {
+  var V = THREE.Vector3;
+  var pts = {
+    "body-mind":  [new V(-7.4, 0.3, 0.9),  new V(-7.4, 3.15, 2.5)],
+    "body-bonds": [new V(-7.4, 0.3, -0.9), new V(-7.4, 3.15, -2.5)],
+    "mind-bonds": [new V(-7.4, 3.6, 2.2),  new V(-7.4, 3.6, -2.2)],
+    "mind-life":  [new V(7.4, 3.5, 2.5),   new V(7.4, 6.45, 0.9)],
+    "bonds-life": [new V(7.4, 3.5, -2.5),  new V(7.4, 6.45, -0.9)]
+  };
+  LEVEL_EDGES.forEach(function (le) {
+    var p = pts[le.from + "-" + le.to];
+    var curve = curveFor(p[0], p[1]);
+    var obj = makeTube(curve, 0.085, !!le.twin);
+    obj.level = le; obj.speed = 0.12;
+    levelEdgeObjs.push(obj);
+    if (le.label) {
+      var mid = curve.getPointAt(0.5).clone();
+      mid.x += le.from === "body" ? -0.2 : 0.2;
+      addLabel("elabel", le.label, mid, { kind: "edge" });
+    }
+  });
+}
+
+function addLabel(cls, html, pos, meta) {
+  var el = document.createElement(meta && meta.button ? "button" : "div");
+  el.className = "lab " + cls; el.innerHTML = html;
+  if (meta && meta.button) { el.type = "button"; }
+  labelsEl.appendChild(el);
+  var rec = Object.assign({ el: el, pos: pos, w: 0, h: 0 }, meta || {});
+  labelEls.push(rec);
+  return rec;
+}
+
+function buildLabels() {
+  var V = THREE.Vector3;
+  FAMILIES.forEach(function (f) {
+    var fi = famInfo[f.id];
+    var rec = addLabel("flabel", '<span class="c">' + f.id + '</span><span class="n">' + f.name + "</span>", new V(fi.x, fi.top + 0.25, fi.z), { kind: "fam", fam: f.id });
+    rec.el.style.setProperty("--c", lvVar(f.level));
+    if (f.subs.length > 1) f.subs.forEach(function (id) {
+      var b = blocks[id];
+      var r = addLabel("slabel", id, new V(b.mesh.position.x, b.mesh.position.y + b.h / 2 + 0.12, b.mesh.position.z + b.d / 2), { kind: "sub", need: id, fam: f.id });
+      r.el.style.setProperty("--c", lvVar(f.level));
+    });
+  });
+  Object.keys(LEVELS).forEach(function (lv) {
+    var L = LEVELS[lv];
+    var r = addLabel("llabel", L.roman + " · " + L.name, new V(-6.9, L.y + 0.05, L.z + 1.25), { kind: "level", level: lv, button: true });
+    r.el.style.setProperty("--c", lvVar(lv));
+    r.el.setAttribute("aria-label", "Level " + L.roman + ", " + L.name + ": show details");
+    r.el.addEventListener("click", function () { showLevel(lv); });
+  });
+  FN_ORDER.forEach(function (fn) {
+    var F = FUNCS[fn];
+    addLabel("alabel", "<b>" + F.key + "</b><span>" + F.word + "</span>", new V(F.x, -0.08, 4.75), { kind: "axis" });
+  });
+}
+
+function bindPointer() {
+  var el = renderer.domElement, down = null;
+  el.addEventListener("pointerdown", function (ev) { down = { x: ev.clientX, y: ev.clientY }; cancelFly(); });
+  el.addEventListener("pointerup", function (ev) {
+    if (!down) return;
+    var moved = Math.hypot(ev.clientX - down.x, ev.clientY - down.y); down = null;
+    if (moved > 6) return;
+    var hit = pick(ev);
+    if (hit) onBlockClick(hit);
+  });
+  el.addEventListener("pointermove", function (ev) {
+    if (ev.pointerType !== "mouse") return;
+    var hit = pick(ev);
+    if (hit !== S.hover) { S.hover = hit; refresh3D(); }
+    stageEl.classList.toggle("hovering", !!hit);
+    if (hit) {
+      var n = NEED[hit], r = stageEl.getBoundingClientRect();
+      tipEl.innerHTML = '<span class="c">' + n.id + " · " + LEVELS[n.level].name + " · " + FUNCS[n.fn].key + "</span><b>" + n.name + "</b>" + n.def;
+      tipEl.style.setProperty("--c", lvVar(n.level));
+      tipEl.hidden = false;
+      var x = ev.clientX - r.left + 14, y = ev.clientY - r.top + 14;
+      var tw = tipEl.offsetWidth, th = tipEl.offsetHeight;
+      if (x + tw > r.width - 8) x = ev.clientX - r.left - tw - 14;
+      if (y + th > r.height - 8) y = ev.clientY - r.top - th - 14;
+      tipEl.style.left = x + "px"; tipEl.style.top = y + "px";
+    } else tipEl.hidden = true;
+  });
+  el.addEventListener("pointerleave", function () { tipEl.hidden = true; if (S.hover) { S.hover = null; refresh3D(); } stageEl.classList.remove("hovering"); });
+}
+
+function pick(ev) {
+  var r = renderer.domElement.getBoundingClientRect();
+  pointer.x = ((ev.clientX - r.left) / r.width) * 2 - 1;
+  pointer.y = -((ev.clientY - r.top) / r.height) * 2 + 1;
+  raycaster.setFromCamera(pointer, camera);
+  var hits = raycaster.intersectObjects(pickables, false);
+  for (var i = 0; i < hits.length; i++) {
+    var u = hits[i].object.userData;
+    if (hits[i].object.material.opacity < 0.2) continue;
+    if (u.need) return u.need;
+    if (u.fam) return FAM[u.fam].subs[0];
+  }
+  return null;
+}
+
+function resize() {
+  var w = stageEl.clientWidth, h = stageEl.clientHeight;
+  if (!w || !h) return;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.fov = camera.aspect < 0.9 ? 46 : 38;
+  camera.updateProjectionMatrix();
+  stageEl.classList.toggle("narrow", w < 620);
+  labelEls.forEach(function (r) { r.w = 0; });
+}
+
+/* camera presets */
+function camAt(dir, target, dist) {
+  var a = 1;
+  var d = new THREE.Vector3(dir[0], dir[1], dir[2]).normalize().multiplyScalar(dist * a);
+  var t = new THREE.Vector3(target[0], target[1], target[2]);
+  return { pos: t.clone().add(d), target: t };
+}
+var CAMS = {
+  overview: function () { return camAt([0.62, 0.42, 0.72], [0, 3.1, 0], 25); },
+  side:     function () { return camAt([1, 0.18, 0.001], [0, 3.3, 0], 22); },
+  top:      function () { return camAt([0.001, 1, 0.08], [0, 3.0, 0], 27); },
+  front:    function () { return camAt([0.08, 0.28, 1], [0, 3.2, 0], 25); },
+  body:     function () { return camAt([0.55, 0.38, 0.85], [0, 0.8, 0], 15); },
+  life:     function () { return camAt([0.5, 0.55, 0.75], [0, 6.6, 0], 15); }
+};
+function setCam(c) { camera.position.copy(c.pos); controls.target.copy(c.target); controls.update(); }
+function flyTo(c, dur) {
+  if (!has3D && !camera) return;
+  if (reduceMotion) { setCam(c); return; }
+  fly = { p0: camera.position.clone(), t0: controls.target.clone(), p1: c.pos, t1: c.target, start: performance.now(), dur: dur || 900 };
+}
+function cancelFly() { fly = null; }
+function flyToFam(famId) {
+  if (!has3D) return;
+  var fi = famInfo[famId];
+  var target = new THREE.Vector3(fi.x, fi.y + 0.9, fi.z);
+  var dir = camera.position.clone().sub(controls.target).normalize();
+  if (dir.y < 0.5) { dir.y = 0.62; dir.normalize(); }
+  flyTo({ pos: target.clone().add(dir.multiplyScalar(window.innerWidth < 860 ? 17 : 15)), target: target }, 900);
+}
+
+/* ------------------------------------------------------------------ */
+/* Visual state                                                        */
+/* ------------------------------------------------------------------ */
+function col(hex) { return new THREE.Color(hex); }
+function mix(a, b, t) { return col(a).lerp(col(b), t); }
+
+function blockVisual(id) {
+  var n = NEED[id], base = C[n.level], bg = C.scene;
+  var full = { color: col(base), opacity: 1, line: C.ink, lineOp: 0.22 };
+  var dim = { color: mix(base, bg, 0.78), opacity: 0.32, line: C.ink, lineOp: 0.06 };
+  var ghost = { color: col(base), opacity: 0.1, line: base, lineOp: 0.6 };
+  function stateVis(s) {
+    if (s === "fail") return { color: col(C.fail), opacity: 1, line: C.ink, lineOp: 0.3 };
+    if (s === "strain") return { color: col(C.strain), opacity: 1, line: C.ink, lineOp: 0.3 };
+    if (s === "absent") return ghost;
+    if (s === "gone") return { color: mix(C.ink, bg, 0.72), opacity: 0.55, line: C.ink, lineOp: 0.12 };
+    if (s === "pending") return { color: mix(base, bg, 0.35), opacity: 1, line: C.fail, lineOp: 1 };
+    return { color: mix(C.met, bg, 0.45), opacity: 0.9, line: C.ink, lineOp: 0.15 };
+  }
+  switch (S.lens) {
+    case "explore":
+      if (S.levelInfo) return n.level === S.levelInfo ? full : dim;
+      if (!S.selected) return full;
+      var rel = relatedFams(NEED[S.selected].fam);
+      return rel.has(n.fam) ? full : dim;
+    case "tour":
+      var f = TOUR[S.tour].focus;
+      if (!f) return full;
+      if (f.levels) return f.levels.indexOf(n.level) >= 0 ? full : dim;
+      if (f.fams) return f.fams.indexOf(n.fam) >= 0 ? full : dim;
+      return full;
+    case "life-stages":
+      var sup = supplierFor(S.stage, id);
+      if (sup === "absent") return ghost;
+      if (sup === "others") return { color: mix(base, bg, 0.72), opacity: 1, line: base, lineOp: 0.7 };
+      if (sup === "shared") return { color: mix(base, bg, 0.38), opacity: 1, line: C.ink, lineOp: 0.2 };
+      return full;
+    case "deprive":
+      return stateVis(simulate(S.time).st[id]);
+    case "scenarios":
+      if (!S.scenario) return full;
+      return stateVis(S.scenario.states[id] || "met");
+    case "is-it-a-need":
+      if (!S.candidate) return full;
+      return S.candidate.maps.indexOf(n.fam) >= 0 ? full : dim;
+  }
+  return full;
+}
+
+function edgeVisual(obj) {
+  var e = obj.edge, typeColor = { column: C.ink, twin: C.bonds, row: C.muted, supply: C.supply }[e.type];
+  var off = { visible: false };
+  var on = { visible: true, color: typeColor, opacity: e.type === "row" ? 0.55 : 0.85 };
+  var faint = { visible: true, color: typeColor, opacity: 0.12 };
+  switch (S.lens) {
+    case "explore":
+      if (S.selected) {
+        var fam = NEED[S.selected].fam;
+        return (e.from === fam || e.to === fam) ? on : off;
+      }
+      return S.layers[e.type] ? on : off;
+    case "tour":
+      return TOUR[S.tour].layers[e.type] ? on : off;
+    case "life-stages":
+      var st = STAGES[S.stage];
+      if (!st.edges[e.type]) return off;
+      if (e.type === "twin") return (e.when === "dev") === st.dev ? on : off;
+      if (e.type === "supply" && S.stage === 0 && (e.from === "13" || e.from === "16")) return off;
+      return on;
+    case "deprive":
+      var sim = simulate(S.time);
+      if (sim.death) return off;
+      var srcFail = FAM[e.from].subs.some(function (id) { return sim.st[id] === "fail"; });
+      var enabling = e.type === "column" || e.type === "twin" || (e.type === "row" && e.sub === "enable");
+      if (srcFail && enabling) return { visible: true, color: C.fail, opacity: 0.95 };
+      return (e.type === "column" || e.type === "twin") ? faint : off;
+    case "scenarios":
+      if (!S.scenario) return (e.type === "column" || e.type === "twin") ? on : off;
+      var src = FAM[e.from].subs.some(function (id) { return S.scenario.states[id] === "fail"; });
+      var enab = e.type === "column" || e.type === "twin";
+      if (src && enab) return { visible: true, color: C.fail, opacity: 0.9 };
+      return enab ? faint : off;
+    case "is-it-a-need":
+      return off;
+  }
+  return off;
+}
+
+function levelEdgeVisual() {
+  var show = true;
+  if (S.lens === "explore") show = S.layers.level && !S.selected;
+  else if (S.lens === "tour") show = !!TOUR[S.tour].layers.level;
+  else if (S.lens === "life-stages") show = !!STAGES[S.stage].edges.level;
+  else if (S.lens === "deprive") show = !simulate(S.time).death;
+  return show;
+}
+
+function refresh3D() {
+  if (!has3D) return;
+  NEED_IDS.forEach(function (id) {
+    var b = blocks[id], v = blockVisual(id);
+    var m = b.mesh.material;
+    m.color.copy(v.color); m.opacity = v.opacity; m.transparent = v.opacity < 1; m.depthWrite = v.opacity > 0.6;
+    b.mesh.castShadow = v.opacity > 0.6;
+    b.lines.material.color.set(v.line); b.lines.material.opacity = v.lineOp;
+    m.emissive.setRGB(0, 0, 0);
+    if (S.hover === id) m.emissive.copy(col(C.ink)).multiplyScalar(0.12);
+  });
+  FAMILIES.forEach(function (f) {
+    var p = blocks[f.subs[0]].plinth;
+    p.material.color.copy(col(C["surface-2"]));
+  });
+  Object.keys(plates).forEach(function (lv) {
+    var p = plates[lv];
+    var absent = S.lens === "life-stages" && STAGES[S.stage].def[lv] === "absent";
+    p.mesh.material.color.copy(mix(C[lv], C.scene, 0.55));
+    p.mesh.material.opacity = absent ? 0.08 : 0.32;
+    p.lines.material.color.set(C[lv]); p.lines.material.opacity = absent ? 0.35 : 0.75;
+  });
+  edgeObjs.forEach(function (o) {
+    var v = edgeVisual(o);
+    o.group.visible = !!v.visible;
+    if (v.visible) { o.mat.color.set(v.color); o.mat.opacity = v.opacity; o.dots.forEach(function (d) { d.mesh.material.color.set(C.surface); d.mesh.visible = v.opacity > 0.3; }); }
+  });
+  var lv = levelEdgeVisual();
+  levelEdgeObjs.forEach(function (o) {
+    o.group.visible = lv;
+    o.mat.color.set(C.ink); o.mat.opacity = 0.16;
+    o.dots.forEach(function (d) { d.mesh.material.color.set(C.ink); d.mesh.material.opacity = 0.45; });
+  });
+  labelEls.forEach(function (r) { if (r.kind === "edge") r.el.hidden = !lv; });
+  // selection box
+  if (S.selected && blocks[S.selected]) {
+    var b = blocks[S.selected];
+    selBox.visible = true;
+    selBox.position.copy(b.mesh.position);
+    selBox.scale.set(b.w + 0.16, b.h + 0.16, b.d + 0.16);
+    selBox.material.color.set(C.ink);
+  } else selBox.visible = false;
+}
+
+function applyTheme() {
+  if (!has3D) return;
+  readColors();
+  scene.background = col(C.scene);
+  grid.material.color.set(C.grid);
+  ground.material.opacity = document.documentElement.matches("[data-theme='dark']") || (window.matchMedia("(prefers-color-scheme: dark)").matches && !document.documentElement.matches("[data-theme='light']")) ? 0.35 : 0.14;
+  refresh3D();
+}
+
+/* ------------------------------------------------------------------ */
+/* Render loop                                                         */
+/* ------------------------------------------------------------------ */
+var tmpV = null, lastT = 0;
+function loop(now) {
+  requestAnimationFrame(loop);
+  if (fly) {
+    var k = Math.min(1, (now - fly.start) / fly.dur), e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+    camera.position.lerpVectors(fly.p0, fly.p1, e);
+    controls.target.lerpVectors(fly.t0, fly.t1, e);
+    if (k >= 1) fly = null;
+  }
+  controls.update();
+  var secs = now / 1000;
+  if (!reduceMotion) {
+    edgeObjs.concat(levelEdgeObjs).forEach(function (o) {
+      if (!o.group.visible) return;
+      o.dots.forEach(function (d) {
+        var t = (secs * o.speed + d.off) % 1;
+        if (o.twoHeads) t = 0.5 + 0.5 * Math.sin((secs * o.speed + d.off) * Math.PI * 2) * 0.92;
+        d.mesh.position.copy(o.curve.getPointAt(t));
+      });
+    });
+  } else if (!lastT) {
+    edgeObjs.concat(levelEdgeObjs).forEach(function (o) { o.dots.forEach(function (d) { d.mesh.position.copy(o.curve.getPointAt(0.2 + d.off * 0.6)); }); });
+  }
+  lastT = now;
+  renderer.render(scene, camera);
+  placeLabels();
+}
+
+function placeLabels() {
+  if (!tmpV) tmpV = new THREE.Vector3();
+  var w = stageEl.clientWidth, h = stageEl.clientHeight;
+  var camPos = camera.position, placed = [];
+  var recs = labelEls.map(function (r) { return { r: r, dist: r.pos.distanceTo(camPos) }; }).sort(function (a, b) { return a.dist - b.dist; });
+  var selFam = S.selected ? NEED[S.selected].fam : null;
+  recs.forEach(function (o) {
+    var r = o.r, el = r.el;
+    if (r.kind === "edge" && el.hidden) return;
+    tmpV.copy(r.pos).project(camera);
+    var vis = tmpV.z < 1 && tmpV.x > -1.2 && tmpV.x < 1.2 && tmpV.y > -1.2 && tmpV.y < 1.2;
+    if (r.kind === "sub") vis = vis && (o.dist < 12 || r.fam === selFam);
+    if (!vis) { el.style.visibility = "hidden"; return; }
+    el.style.visibility = "visible";
+    var x = (tmpV.x * 0.5 + 0.5) * w, y = (-tmpV.y * 0.5 + 0.5) * h;
+    if (!r.w) { r.w = el.offsetWidth; r.h = el.offsetHeight; }
+    var tx = r.kind === "level" ? -r.w : -r.w / 2, ty = r.kind === "axis" ? 0 : -r.h;
+    if (r.kind === "level") ty = -r.h / 2;
+    el.style.transform = "translate3d(" + Math.round(x + tx) + "px," + Math.round(y + ty) + "px,0)";
+    if (r.kind === "fam") {
+      var rect = { l: x + tx, t: y + ty, r: x + tx + r.w, b: y + ty + r.h };
+      var important = r.fam === selFam || (S.hover && NEED[S.hover].fam === r.fam);
+      var crowded = !important && placed.some(function (p) { return rect.l < p.r && rect.r > p.l && rect.t < p.b && rect.b > p.t; });
+      el.classList.toggle("crowded", crowded);
+      if (!crowded) placed.push(rect);
+      var v = blocks[FAM[r.fam].subs[0]].mesh.material.opacity;
+      el.classList.toggle("dim", v < 0.6 && !important);
+    }
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* Interaction                                                         */
+/* ------------------------------------------------------------------ */
+function onBlockClick(id) {
+  if (S.lens === "deprive") { toggleCut(id); return; }
+  selectNeed(id, true);
+}
+function selectNeed(id, flyThere) {
+  S.selected = id; S.levelInfo = null;
+  if (S.lens === "explore") setHash("need-" + id);
+  renderPanel(); refresh3D();
+  if (flyThere) flyToFam(NEED[id].fam);
+  var p = $("#panel"); if (p) p.scrollTop = 0;
+}
+function clearSelection() {
+  S.selected = null; S.levelInfo = null;
+  if (S.lens === "explore") setHash("explore");
+  renderPanel(); refresh3D();
+}
+function showLevel(lv) {
+  if (S.lens !== "explore") { S.lens = "explore"; renderTabs(); setHash("explore"); }
+  S.selected = null; S.levelInfo = lv; renderPanel(); refresh3D();
+  if (has3D) { var L = LEVELS[lv]; var t = new THREE.Vector3(0, L.y + 0.8, L.z); var dir = camera.position.clone().sub(controls.target).normalize(); flyTo({ pos: t.clone().add(dir.multiplyScalar(17)), target: t }, 900); }
+}
+function toggleCut(id) {
+  if (S.cut.has(id)) S.cut.delete(id); else S.cut.add(id);
+  renderPanel(); refresh3D();
+}
+function setLens(id, fromHash) {
+  if (!LENSES.some(function (l) { return l.id === id; })) id = "explore";
+  S.lens = id; S.selected = null; S.levelInfo = null; S.playing = false;
+  if (id === "tour") applyTourStep();
+  if (id === "deprive" && S.cut.size === 0) applyPreset(PRESETS[0], true);
+  renderTabs(); renderPanel(); refresh3D(); renderLegend();
+  if (!fromHash) setHash(id);
+  if (id === "scenarios" && S.scenario) flyToFam(S.scenario.focus);
+  if (id === "explore" || id === "life-stages" || id === "deprive" || id === "is-it-a-need") { if (has3D && id !== "explore") flyTo(CAMS.overview(), 900); }
+}
+function applyTourStep() {
+  var st = TOUR[S.tour];
+  if (has3D) flyTo(CAMS[st.cam](), 1100);
+}
+function applyPreset(p, quiet) {
+  S.cut = new Set(p.cut); S.time = p.t; S.preset = p.id;
+  if (!quiet) { renderPanel(); refresh3D(); }
+}
+var hashLock = false;
+function setHash(h) {
+  try { hashLock = true; if (location.hash !== "#" + h) location.hash = h; } catch (e) { /* ignore */ }
+  setTimeout(function () { hashLock = false; }, 0);
+}
+function fromHash() {
+  var h = (location.hash || "").slice(1);
+  if (h.indexOf("need-") === 0 && NEED[h.slice(5)]) {
+    if (S.lens !== "explore") { S.lens = "explore"; renderTabs(); renderLegend(); }
+    selectNeed(h.slice(5), true); return;
+  }
+  setLens(h || "explore", true);
+}
+window.addEventListener("hashchange", function () { if (!hashLock) fromHash(); });
+
+/* ------------------------------------------------------------------ */
+/* Panel rendering                                                     */
+/* ------------------------------------------------------------------ */
+var pbody = $("#pbody");
+
+function renderTabs() {
+  var nav = $("#lenses");
+  nav.innerHTML = LENSES.map(function (l) {
+    return '<button class="lens" role="tab" type="button" data-lens="' + l.id + '" aria-selected="' + (S.lens === l.id) + '">' + l.name + "</button>";
+  }).join("");
+}
+
+function chip(id, extra) {
+  var n = NEED[id];
+  return '<button type="button" class="chip" data-need="' + id + '" style="--c:' + lvVar(n.level) + '"' + (extra || "") + '><span class="c">' + id + "</span>" + n.name + "</button>";
+}
+function famChip(fid, note) {
+  var f = FAM[fid];
+  return '<button type="button" class="chip" data-need="' + f.subs[0] + '" style="--c:' + lvVar(f.level) + '" title="' + (note || "") + '"><span class="c">' + f.id + "</span>" + f.name + "</button>";
+}
+
+function miniTable() {
+  var h = '<div class="mini" role="table" aria-label="The map as a table"><div class="h" role="columnheader"></div>';
+  FN_ORDER.forEach(function (fn) { h += '<div class="h" role="columnheader">' + FUNCS[fn].key + "</div>"; });
+  LEVEL_ORDER.forEach(function (lv) {
+    h += '<div class="lv" style="--c:' + lvVar(lv) + '">' + LEVELS[lv].roman + " " + LEVELS[lv].name + "</div>";
+    FN_ORDER.forEach(function (fn) {
+      var f = FAMILIES.filter(function (x) { return x.level === lv && x.fn === fn; })[0];
+      h += '<div class="cell" style="--c:' + lvVar(lv) + '">';
+      f.subs.forEach(function (id) {
+        h += '<button type="button" data-need="' + id + '"' + (S.selected === id ? ' aria-current="true"' : "") + '><span class="c">' + id + "</span>" + NEED[id].name + "</button>";
+      });
+      h += "</div>";
+    });
+  });
+  return h + "</div>";
+}
+
+function needDetail(id) {
+  var n = NEED[id], f = famOf(id), L = LEVELS[n.level], F = FUNCS[n.fn];
+  var deps = EDGES.filter(function (e) { return e.to === f.id; });
+  var feeds = EDGES.filter(function (e) { return e.from === f.id; });
+  var h = "";
+  h += '<button class="backbtn" type="button" data-act="back">← ' + (S.lens === "explore" ? "All needs" : "Back to " + LENSES.filter(function (l) { return l.id === S.lens; })[0].name) + "</button>";
+  h += '<div class="needhead" style="--c:' + lvVar(n.level) + '"><span class="bigcode">' + n.id + '</span><div><p class="eyebrow">' + L.roman + " " + L.name + " · " + F.key + " (" + F.word + ")" + (f.subs.length > 1 ? " · family " + f.id + " " + f.name : "") + "</p><h2>" + n.name + "</h2></div></div>";
+  h += '<p class="def">' + n.def + "</p>";
+  h += '<dl class="facts" style="--c:' + lvVar(n.level) + '">';
+  h += "<div><dt>When persistently unmet</dt><dd>" + n.unmet + '<br><span class="ttf">Rough time to harm: ' + n.ttfLabel + "</span></dd></div>";
+  h += "<div><dt>Fails on its own when</dt><dd>" + n.alone + "</dd></div>";
+  if (n.band) h += "<div><dt>Too much</dt><dd>" + n.band + "</dd></div>";
+  h += "</dl>";
+  h += "<h3>Met in three ways of life</h3>";
+  h += '<table class="ways"><tbody>' + WAYS.map(function (w, i) { return "<tr><th scope=\"row\">" + w + "</th><td>" + n.ways[i] + "</td></tr>"; }).join("") + "</tbody></table>";
+  if (f.subs.length > 1) h += "<h3>Also in family " + f.id + " " + f.name + '</h3><div class="chips">' + f.subs.filter(function (s) { return s !== id; }).map(function (s) { return chip(s); }).join("") + "</div>";
+  if (deps.length) h += '<h3>Fed by</h3><div class="chips">' + deps.map(function (e) { return famChip(e.from, e.note); }).join("") + "</div><p class=\"small muted\">" + uniqueNotes(deps) + "</p>";
+  if (feeds.length) h += '<h3>Feeds</h3><div class="chips">' + feeds.map(function (e) { return famChip(e.to, e.note); }).join("") + "</div><p class=\"small muted\">" + uniqueNotes(feeds) + "</p>";
+  if (n.level === "body") h += '<p class="small muted">Body feeds everything: when a body need fails, every need above it comes under strain.</p>';
+  return h;
+}
+function uniqueNotes(list) { var s = []; list.forEach(function (e) { if (s.indexOf(e.note) < 0) s.push(e.note); }); return s.join(" "); }
+
+function levelDetail(lv) {
+  var L = LEVELS[lv];
+  var fams = FAMILIES.filter(function (f) { return f.level === lv; });
+  var h = '<button class="backbtn" type="button" data-act="back">← All needs</button>';
+  h += '<div><p class="eyebrow" style="color:' + lvVar(lv) + '">Level ' + L.roman + "</p><h2>" + L.name + "</h2></div>";
+  h += '<p class="lede">' + L.text + "</p>";
+  h += '<p class="small"><b>Present:</b> ' + L.present + ".</p>";
+  h += '<div class="list">' + fams.map(function (f) {
+    return f.subs.map(function (id) { return '<button type="button" class="item" data-need="' + id + '"><b>' + id + " " + NEED[id].name + " <span>(" + FUNCS[f.fn].key + ")</span></b><span>" + NEED[id].def + "</span></button>"; }).join("");
+  }).join("") + "</div>";
+  if (lv === "mind" || lv === "bonds") h += '<p class="small muted">Mind and Bonds are twins on the same storey. Neither is built on the other.</p>';
+  return h;
+}
+
+function renderExplore() {
+  if (S.selected) return needDetail(S.selected);
+  if (S.levelInfo) return levelDetail(S.levelInfo);
+  var h = "";
+  h += '<div><p class="eyebrow">Explore</p><h2>A person, as a structure</h2></div>';
+  h += '<p class="lede">Each block is one need: a condition a person must be in, whatever they want or believe. The four floors are levels. The four columns are the four ways any level can fail.</p>';
+  h += '<p class="small muted">Click a block in the model, or a need in the table, to open it. Click a floor name to read about that level.</p>';
+  h += miniTable();
+  h += "<h3>Show in the model</h3>";
+  h += '<div class="toggles">' +
+    tog("level", "Floors feeding floors", "thick grey arrows") +
+    tog("column", "Column chains", "dark arrows") +
+    tog("twin", "Twins: Bonds ⇄ Mind", "rose arrows") +
+    tog("supply", "Supply runs downward", "teal arrows") +
+    tog("row", "Rhythm within each floor", "light arrows") + "</div>";
+  h += '<div class="card"><b>How to read the blocks</b><span class="small">Block height shows urgency: taller blocks harm sooner when missing. Air harms in minutes, Meaning over a year or more. Urgency is not rank.</span></div>';
+  h += '<div class="card"><b>What counts as a need</b><span class="small"><b>T1 Universal</b> wherever its level exists. <b>T2 Harm</b> that can be detected, whatever the person believes. <b>T3 Many satisfiers</b>: a forager, a monk and a commuter can each meet it. <b>T4 Irreducible</b>: it can fail while everything else is met. Try the <a href="#is-it-a-need">Is it a need?</a> view.</span></div>';
+  h += '<p class="foot">Built from the consensus of seven AI agents (a Thermodynamicist, Systems Engineer, Minimalist Skeptic, Phenomenologist, Relationalist, Logician and Outsider) after three rounds of debate. All seven signed; three recorded reservations.</p>';
+  return h;
+}
+function tog(key, label, hint) {
+  return '<label><input type="checkbox" id="layer-' + key + '" data-layer="' + key + '"' + (S.layers[key] ? " checked" : "") + "> " + label + ' <span class="small muted">(' + hint + ")</span></label>";
+}
+
+function renderTour() {
+  var st = TOUR[S.tour];
+  var h = '<div><p class="eyebrow">Guided tour · ' + (S.tour + 1) + " of " + TOUR.length + "</p><h2>" + st.title + "</h2></div>";
+  h += '<div class="dots" aria-hidden="true">' + TOUR.map(function (_, i) { return '<span class="' + (i <= S.tour ? "on" : "") + '"></span>'; }).join("") + "</div>";
+  h += '<p class="lede">' + st.text + "</p>";
+  if (st.showAxes) h += '<div class="list">' + FN_ORDER.map(function (fn) { return '<div class="card"><b>' + FUNCS[fn].key + " · " + FUNCS[fn].word + '</b><span class="small">' + FUNCS[fn].text + ". " + LEVEL_ORDER.slice().reverse().map(function (lv) { var f = FAMILIES.filter(function (x) { return x.level === lv && x.fn === fn; })[0]; return f.name; }).join(" → ") + "</span></div>"; }).join("") + "</div>";
+  h += '<div class="btnrow"><button class="btn" type="button" data-act="tour-prev"' + (S.tour === 0 ? " disabled" : "") + '>Back</button>';
+  h += S.tour < TOUR.length - 1 ? '<button class="btn primary" type="button" data-act="tour-next">Next</button>' : '<button class="btn primary" type="button" data-lens-go="explore">Start exploring</button>';
+  h += "</div>";
+  return h;
+}
+
+function renderStages() {
+  var st = STAGES[S.stage];
+  var h = '<div><p class="eyebrow">Life stages</p><h2>' + st.name + "</h2></div>";
+  h += '<input class="range" type="range" id="stage-range" min="0" max="4" step="1" value="' + S.stage + '" aria-label="Life stage">';
+  h += '<div class="ticks">' + STAGES.map(function (s, i) { return '<span class="' + (i === S.stage ? "on" : "") + '">' + s.name + "</span>"; }).join("") + "</div>";
+  h += '<p class="lede">' + st.text + "</p>";
+  var counts = { others: 0, shared: 0, self: 0, absent: 0 };
+  NEED_IDS.forEach(function (id) { counts[supplierFor(S.stage, id)]++; });
+  h += '<div class="card"><b>Who meets the 24 needs</b><span class="small">' +
+    counts.others + " delivered by others · " + counts.shared + " shared · " + counts.self + " self-supplied" + (counts.absent ? " · " + counts.absent + " not yet present" : "") + "</span></div>";
+  h += '<p class="small muted">Pale blocks are met by other people, mid-tone blocks are shared, solid blocks are self-supplied, and outlines are needs whose level is not present yet. The needs themselves do not change across a life; who supplies them does.</p>';
+  return h;
+}
+
+function renderDeprive() {
+  var sim = simulate(S.time);
+  var h = '<div><p class="eyebrow">Deprive</p><h2>Cut a need, run the clock</h2></div>';
+  h += '<p class="small">Click blocks in the model, or the chips below, to cut a need off. Then move the clock. Times are rough orders of magnitude.</p>';
+  h += '<div class="btnrow">' + PRESETS.map(function (p) { return '<button class="chip" type="button" data-preset="' + p.id + '" aria-pressed="' + (S.preset === p.id) + '">' + p.name + "</button>"; }).join("") + "</div>";
+  var pr = PRESETS.filter(function (p) { return p.id === S.preset; })[0];
+  if (pr) h += '<p class="small muted">' + pr.note + "</p>";
+  h += '<div class="clock"><span class="t" id="clock-t">' + fmtTime(S.time) + '</span><span class="btnrow"><button class="btn" type="button" data-act="play">' + (S.playing ? "Pause" : "Play") + '</button><button class="btn" type="button" data-act="clear">Clear</button></span></div>';
+  h += '<input class="range" type="range" id="time-range" min="0" max="1000" value="' + timeToSlider(S.time) + '" aria-label="Time without the cut needs">';
+  h += '<div class="ticks"><span>1 min</span><span>1 day</span><span>1 month</span><span>1 year</span><span>3 years</span></div>';
+  h += '<div id="sim-status">' + simStatus(sim) + "</div>";
+  h += "<h3>Cut off</h3>";
+  h += '<div class="cutgrid">' + LEVEL_ORDER.slice().reverse().map(function (lv) {
+    var ids = NEED_IDS.filter(function (id) { return NEED[id].level === lv; });
+    return '<div class="lvrow"><span class="lvname" style="--c:' + lvVar(lv) + '">' + LEVELS[lv].name + "</span>" + ids.map(function (id) {
+      var on = S.cut.has(id);
+      return '<button type="button" class="chip' + (on ? " cut" : "") + '" data-cut="' + id + '" aria-pressed="' + on + '" style="--c:' + lvVar(lv) + '"><span class="c">' + id + "</span>" + NEED[id].name + "</button>";
+    }).join("") + "</div>";
+  }).join("") + "</div>";
+  return h;
+}
+function simStatus(sim) {
+  if (sim.death) return '<div class="banner">After ' + fmtTime(sim.death.t) + " without " + NEED[sim.death.id].name.toLowerCase() + ", the body ends. The dead have no needs: Body → everything is the one strict dependency.</div>";
+  var fail = [], strain = [], pend = [];
+  NEED_IDS.forEach(function (id) { var s = sim.st[id]; if (s === "fail") fail.push(id); else if (s === "strain") strain.push(id); else if (s === "pending") pend.push(id); });
+  var h = '<div class="status">';
+  h += '<div class="row"><span class="pill" style="--c:var(--fail)">Failing</span><span>' + (fail.length ? fail.map(function (id) { return id + " " + NEED[id].name; }).join(", ") : "None yet") + "</span></div>";
+  h += '<div class="row"><span class="pill" style="--c:var(--strain)">Strained</span><span>' + (strain.length ? strain.map(function (id) { return id + " " + NEED[id].name; }).join(", ") : "None") + "</span></div>";
+  if (pend.length) h += '<div class="row"><span class="pill" style="--c:var(--muted)">Cut, holding</span><span>' + pend.map(function (id) { return id + " " + NEED[id].name + " (" + NEED[id].ttfLabel + ")"; }).join(", ") + "</span></div>";
+  return h + "</div>";
+}
+
+function renderScenarios() {
+  var h = '<div><p class="eyebrow">Scenarios</p><h2>Real lives, one need at a time</h2></div>';
+  if (S.scenario) {
+    var sc = S.scenario;
+    var fails = NEED_IDS.filter(function (id) { return sc.states[id] === "fail"; });
+    var strains = NEED_IDS.filter(function (id) { return sc.states[id] === "strain"; });
+    h += '<div class="card"><p class="eyebrow">' + sc.test + "</p><b style=\"font-size:17px\">" + sc.title + '</b><span class="small muted">' + sc.who + '</span><span>' + sc.story + "</span></div>";
+    h += '<div class="status"><div class="row"><span class="pill" style="--c:var(--fail)">Failing</span><span class="chips">' + fails.map(function (id) { return chip(id); }).join("") + "</span></div>";
+    if (strains.length) h += '<div class="row"><span class="pill" style="--c:var(--strain)">Strained</span><span class="chips">' + strains.map(function (id) { return chip(id); }).join("") + "</span></div>";
+    h += '<div class="row"><span class="pill" style="--c:var(--met)">Met</span><span class="small">Everything else' + (sc.states["13"] === "absent" ? ", except the Life floor, which is not present yet" : "") + ".</span></div></div>";
+    h += '<p class="lede">' + sc.lesson + "</p>";
+    h += '<button class="backbtn" type="button" data-scn="">← All scenarios</button>';
+  }
+  h += '<div class="list">' + SCENARIOS.map(function (sc) {
+    return '<button type="button" class="item" data-scn="' + sc.id + '" aria-pressed="' + (S.scenario && S.scenario.id === sc.id) + '"><b>' + sc.title + "</b><span>" + sc.tag + "</span></button>";
+  }).join("") + "</div>";
+  return h;
+}
+
+function renderTest() {
+  var h = '<div><p class="eyebrow">Is it a need?</p><h2>Run a candidate through the tests</h2></div>';
+  h += '<p class="small">Every need had to pass all four tests, plus the first check that it is a condition of a person. Pick a candidate the panel argued about.</p>';
+  h += '<div class="chips">' + CANDIDATES.map(function (c, i) { return '<button type="button" class="chip" data-cand="' + i + '" aria-pressed="' + (S.candidate === c) + '">' + c.name + "</button>"; }).join("") + "</div>";
+  if (S.candidate) {
+    var c = S.candidate;
+    h += '<div class="tests">' + c.rows.map(function (r, i) {
+      var label = { pass: "pass", fail: "fail", contested: "contested", na: "n/a" }[r[0]];
+      return '<div class="test"><span class="k">' + TESTS[i] + '</span><span><span class="res ' + r[0] + '">' + label + "</span>" + (r[1] || "") + "</span></div>";
+    }).join("") + "</div>";
+    h += '<p class="verdict">' + c.verdict + "</p>";
+    if (c.maps.length) h += '<div class="chips">' + c.maps.map(function (f) { return famChip(f); }).join("") + "</div>";
+  } else {
+    h += '<div class="card"><span class="small"><b>Condition</b>: a state of the person, not an object, act, feeling, outcome or right.<br><b>T1</b>: true wherever its level exists, in every way of life.<br><b>T2</b>: absence causes detectable harm, whatever the person believes.<br><b>T3</b>: very different means can meet it.<br><b>T4</b>: it can fail while every other need is met.</span></div>';
+  }
+  return h;
+}
+
+function renderPanel() {
+  var h;
+  if (S.selected && S.lens !== "explore") h = needDetail(S.selected);
+  else switch (S.lens) {
+    case "tour": h = renderTour(); break;
+    case "life-stages": h = renderStages(); break;
+    case "deprive": h = renderDeprive(); break;
+    case "scenarios": h = renderScenarios(); break;
+    case "is-it-a-need": h = renderTest(); break;
+    default: h = renderExplore();
+  }
+  pbody.innerHTML = h;
+}
+
+function renderLegend() {
+  var lg = $("#legend"), h = "";
+  function row(c, label, cls) { return '<div class="row"><span class="sw ' + (cls || "") + '" style="--c:' + c + '"></span>' + label + "</div>"; }
+  if (S.lens === "explore" || S.lens === "tour" || S.lens === "is-it-a-need") {
+    h = row("var(--body-c)", "I Body") + row("var(--mind-c)", "II Mind") + row("var(--bonds-c)", "III Bonds") + row("var(--life-c)", "IV Life") + '<div class="row muted">Taller block = harms sooner</div>';
+  } else if (S.lens === "life-stages") {
+    h = row("var(--muted)", "Solid: self-supplied") + row("color-mix(in srgb, var(--muted) 45%, var(--scene))", "Mid-tone: shared") + row("color-mix(in srgb, var(--muted) 20%, var(--scene))", "Pale: delivered by others") + row("", "Not present yet", "ghost");
+  } else {
+    h = row("var(--fail)", "Failing") + row("var(--strain)", "Strained (fed by a failing need)") + row("color-mix(in srgb, var(--met) 55%, var(--scene))", "Met") + (S.lens === "deprive" ? row("var(--scene)", "Cut, not failed yet (red outline)") : "") + '<div class="row"><span class="sw line" style="--c:var(--fail)"></span>Strain travelling up</div>';
+  }
+  lg.innerHTML = h;
+}
+
+/* panel events */
+document.addEventListener("click", function (ev) {
+  var t = ev.target.closest("button, a");
+  if (!t) return;
+  if (t.dataset.lens) { setLens(t.dataset.lens); return; }
+  if (t.dataset.lensGo) { setLens(t.dataset.lensGo); return; }
+  if (t.dataset.cam && has3D) { flyTo(CAMS[t.dataset.cam](), 900); return; }
+  if (t.dataset.need) { if (S.lens === "deprive") { toggleCut(t.dataset.need); return; } selectNeed(t.dataset.need, true); return; }
+  if (t.dataset.cut) { toggleCut(t.dataset.cut); return; }
+  if (t.dataset.preset) { var p = PRESETS.filter(function (x) { return x.id === t.dataset.preset; })[0]; S.playing = false; applyPreset(p); return; }
+  if (t.dataset.scn !== undefined) {
+    var sc = SCENARIOS.filter(function (x) { return x.id === t.dataset.scn; })[0] || null;
+    S.scenario = sc; S.selected = null; renderPanel(); refresh3D(); renderLegend();
+    if (sc) flyToFam(sc.focus); else if (has3D) flyTo(CAMS.overview(), 900);
+    $("#panel").scrollTop = 0; return;
+  }
+  if (t.dataset.cand !== undefined) { S.candidate = CANDIDATES[+t.dataset.cand]; renderPanel(); refresh3D(); if (has3D) flyTo(CAMS.overview(), 900); return; }
+  var act = t.dataset.act;
+  if (act === "back") { clearSelection(); return; }
+  if (act === "tour-next") { S.tour = Math.min(TOUR.length - 1, S.tour + 1); applyTourStep(); renderPanel(); refresh3D(); return; }
+  if (act === "tour-prev") { S.tour = Math.max(0, S.tour - 1); applyTourStep(); renderPanel(); refresh3D(); return; }
+  if (act === "clear") { S.cut = new Set(); S.preset = null; S.playing = false; renderPanel(); refresh3D(); return; }
+  if (act === "play") { togglePlay(); return; }
+});
+document.addEventListener("input", function (ev) {
+  var t = ev.target;
+  if (t.id === "stage-range") { S.stage = +t.value; renderPanel(); refresh3D(); var r = $("#stage-range"); if (r) r.focus(); }
+  if (t.id === "time-range") { S.time = sliderToTime(+t.value); S.playing = false; updateSim(); }
+});
+document.addEventListener("change", function (ev) {
+  var t = ev.target;
+  if (t.dataset && t.dataset.layer) { S.layers[t.dataset.layer] = t.checked; refresh3D(); }
+});
+
+function updateSim() {
+  var c = $("#clock-t"); if (c) c.textContent = fmtTime(S.time);
+  var s = $("#sim-status"); if (s) s.innerHTML = simStatus(simulate(S.time));
+  var r = $("#time-range"); if (r && document.activeElement !== r) r.value = timeToSlider(S.time);
+  var pb = document.querySelector('[data-act="play"]'); if (pb) pb.textContent = S.playing ? "Pause" : "Play";
+  refresh3D();
+}
+function togglePlay() {
+  S.playing = !S.playing;
+  if (S.playing) {
+    var v0 = timeToSlider(S.time); if (v0 >= 995) v0 = 0;
+    var start = performance.now(), dur = 9000 * (1 - v0 / 1000);
+    (function step(now) {
+      if (!S.playing || S.lens !== "deprive") return;
+      var k = Math.min(1, (now - start) / Math.max(dur, 1));
+      S.time = sliderToTime(v0 + (1000 - v0) * k);
+      var r = $("#time-range"); if (r) r.value = timeToSlider(S.time);
+      if (simulate(S.time).death || k >= 1) S.playing = false;
+      updateSim();
+      if (S.playing) requestAnimationFrame(step);
+    })(start);
+  }
+  updateSim();
+}
+
+/* theme changes */
+if (window.matchMedia) {
+  var mq = window.matchMedia("(prefers-color-scheme: dark)");
+  if (mq.addEventListener) mq.addEventListener("change", applyTheme);
+}
+new MutationObserver(applyTheme).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "class"] });
+
+/* ------------------------------------------------------------------ */
+/* Boot                                                                */
+/* ------------------------------------------------------------------ */
+renderTabs();
+renderLegend();
+try { init3D(); }
+catch (err) {
+  var fb = document.createElement("div"); fb.className = "fallback";
+  fb.innerHTML = "<p>This browser could not start the 3D model. Everything is still available in the panel: open any need from the table.</p>";
+  stageEl.appendChild(fb); $("#tools").hidden = true; $("#hint").hidden = true;
+}
+fromHash();
+})();
+</script>
+<a href="../../?v=map#human-needs" style="position:fixed;left:14px;bottom:14px;z-index:9999;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.9);color:#2e2445;font:600 13px system-ui,sans-serif;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.25)">← Back to the map</a>

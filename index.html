@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en" class="view-pro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Kiran Ponnusamy · Senior Technical Writer</title>
+  <meta name="description" content="Kiran Ponnusamy, Senior Technical Writer at Zoho. A résumé with two views: a clear professional page, and a sky of floating islands you can wander through.">
+  <meta property="og:title" content="Kiran Ponnusamy · Senior Technical Writer">
+  <meta property="og:description" content="A résumé with two views: a professional page, and a sky of floating islands where the sun rises as the career unfolds.">
+  <meta name="theme-color" content="#fbfaf7">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 6l10 5v4l-10 5-10-5v-4z' fill='%23a9dba8'/%3E%3Cpath d='M6 15l10 5 10-5-10 12z' fill='%23a98fb5'/%3E%3C/svg%3E">
+  <link rel="preload" href="fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/fraunces-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/world.css">
+  <link rel="stylesheet" href="css/pro.css">
+  <script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+</head>
+<body>
+  <div class="sky" aria-hidden="true"></div>
+  <canvas id="world" aria-label="A 3D map of floating islands. Use the timeline buttons to visit each one."></canvas>
+  <div id="labels"></div>
+  <div id="intro-year" aria-hidden="true"></div>
+
+  <header class="who">
+    <div class="who-row">
+      <h1 id="who-name">Kiran Ponnusamy</h1>
+      <button id="view-toggle" class="switch" type="button" role="switch" aria-checked="false" aria-label="Islands view">
+        <span class="track"><span class="thumb"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1.5l4 2.3v4.4L6 10.5 2 8.2V3.8z"/></svg></span></span>
+        <span id="toggle-caption" class="caption">Résumé</span>
+      </button>
+    </div>
+    <p id="who-headline">Senior Technical Writer · Zoho</p>
+    <p id="who-tagline" class="tagline"></p>
+    <nav id="who-links"></nav>
+  </header>
+
+  <button id="badge" class="badge" type="button" aria-expanded="false" aria-controls="colophon">
+    <span class="ember" aria-hidden="true"></span><span id="badge-text">Made by Fable</span>
+  </button>
+  <aside id="colophon" class="colophon" hidden aria-label="How this was made"></aside>
+
+  <main id="pro"></main>
+  <p id="map-error" hidden>The 3D map could not start in this browser. The résumé view has everything.</p>
+
+  <p id="hint" class="hint"><span class="for-mouse">Drag to wander · scroll to zoom · right-drag to turn · click an island</span><span class="for-touch">Drag to wander · pinch to zoom · tap an island</span></p>
+  <nav id="timeline" class="timeline" aria-label="The trail, in order"></nav>
+
+  <aside id="panel" class="panel" aria-labelledby="panel-title" hidden>
+    <button id="panel-close" class="close" type="button" aria-label="Close">×</button>
+    <div id="panel-body"></div>
+  </aside>
+
+  <noscript><p class="noscript">This page needs JavaScript. Kiran Ponnusamy is a Senior Technical Writer at Zoho.</p></noscript>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
